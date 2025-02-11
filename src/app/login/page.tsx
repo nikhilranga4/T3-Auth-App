@@ -1,13 +1,21 @@
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '../api/auth/[...nextauth]/route'
-import { LoginForm } from '../../components/LoginForm'
+"use client"
 
-export default async function LoginPage() {
-  const session = await getServerSession(authOptions)
-  
-  if (session) {
-    redirect('/dashboard')
+import { redirect } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { LoginForm } from '../../components/LoginForm'
+import { useEffect } from 'react'
+
+export default function LoginPage() {
+  const { data: session, status } = useSession()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      redirect('/dashboard')
+    }
+  }, [status])
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
   }
 
   return (
