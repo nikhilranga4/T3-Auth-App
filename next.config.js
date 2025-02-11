@@ -1,15 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  experimental: {
+    serverExternalPackages: ['@prisma/client']
+  },
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === 'production'
   },
   eslint: {
     ignoreDuringBuilds: process.env.NODE_ENV === 'production'
-  },
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client']
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
