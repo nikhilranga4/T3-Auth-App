@@ -2,6 +2,11 @@ import { PrismaClient } from '@prisma/client'
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.SUPABASE_URL,
+      },
+    },
     log: process.env.NODE_ENV === 'development' 
       ? ['query', 'error', 'warn'] 
       : ['error']
@@ -10,23 +15,19 @@ const prismaClientSingleton = () => {
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClientSingleton | undefined
+const globalForPrisma = globalThis as unknown as { 
+  prisma: PrismaClientSingleton | undefined 
 }
 
 const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
-// Named export
-export { prisma }
-
-// Default export
 export default prisma
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }
 
-// Ensure database connection
+// Optional: Add a function to handle database connections
 export async function connectToDatabase() {
   try {
     await prisma.$connect()
@@ -37,7 +38,12 @@ export async function connectToDatabase() {
   }
 }
 
-// Optional: Disconnect on process exit
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+// Optional: Add a function to disconnect
+export async function disconnectFromDatabase() {
+  try {
+    await prisma.$disconnect()
+    console.log('Disconnected from the database')
+  } catch (error) {
+    console.error('Error disconnecting from the database:', error)
+  }
+}
