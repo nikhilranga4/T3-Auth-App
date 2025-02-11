@@ -12,14 +12,6 @@
       "dest": "/"
     }
   ],
-  "env": {
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "DATABASE_URL": "@database_url",
-    "GITHUB_ID": "@github_id",
-    "GITHUB_SECRET": "@github_secret",
-    "GOOGLE_CLIENT_ID": "@google_client_id",
-    "GOOGLE_CLIENT_SECRET": "@google_client_secret"
-  },
   "build": {
     "env": {
       "NEXT_PUBLIC_VERCEL_ENV": "true"
