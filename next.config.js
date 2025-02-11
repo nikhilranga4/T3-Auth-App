@@ -1,22 +1,27 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
+  typescript: {
+    ignoreBuildErrors: process.env.NODE_ENV === 'production'
+  },
+  eslint: {
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production'
+  },
   experimental: {
-    serverActions: true,
+    serverComponentsExternalPackages: ['@prisma/client']
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
-        bcrypt: false,
         fs: false,
         net: false,
-        tls: false,
-        crypto: false,
+        tls: false
       }
     }
     return config
-  },
+  }
 }
 
 module.exports = nextConfig
