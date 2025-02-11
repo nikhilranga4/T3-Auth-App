@@ -97,12 +97,23 @@ export const authOptions = {
       session.user.id = token.id as string
       return session
     },
+    async redirect({ url, baseUrl }) {
+      // Always redirect to dashboard after successful login
+      if (url.startsWith('/login') || url === baseUrl) {
+        return `${baseUrl}/dashboard`
+      }
+      
+      // Handle other redirects
+      return url.startsWith(baseUrl) ? url : baseUrl
+    }
   },
   events: {
     async signIn(message) {
-      // Optional: Log sign-in events
       console.log('Sign in event', message)
     },
+    async signOut(message) {
+      console.log('Sign out event', message)
+    }
   },
   debug: process.env.NODE_ENV === 'development'
 }
