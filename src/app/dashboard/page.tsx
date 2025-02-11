@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
+import prisma from '@/lib/prisma'
 import { authOptions } from '../api/auth/[...nextauth]/route'
 import { UserProfile } from '@/components/UserProfile'
 import { SignOutButton } from '@/components/SignOutButton'
-import { prisma } from '@/lib/prisma'
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions)
