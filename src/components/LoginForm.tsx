@@ -164,7 +164,7 @@ export function LoginForm() {
                   try {
                     setIsGoogleLoading(true)
                     const result = await signIn('google', {
-                      callbackUrl: `${window.location.origin}/dashboard`,
+                      callbackUrl: '/dashboard',
                       redirect: false
                     })
                     
@@ -225,7 +225,7 @@ export function LoginForm() {
                   try {
                     setIsGitHubLoading(true)
                     const result = await signIn('github', {
-                      callbackUrl: `${window.location.origin}/dashboard`,
+                      callbackUrl: '/dashboard',
                       redirect: false
                     })
                     

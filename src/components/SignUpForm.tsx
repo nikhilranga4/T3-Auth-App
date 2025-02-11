@@ -304,7 +304,7 @@ export function SignUpForm() {
     try {
       setIsGitHubLoading(true)
       const result = await signIn('github', {
-        callbackUrl: `${window.location.origin}/dashboard`,
+        callbackUrl: '/dashboard',
         redirect: false
       })
       
