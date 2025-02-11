@@ -19,14 +19,5 @@
       "src": "/(.*)",
       "dest": "/"
     }
-  ],
-  "env": {
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "NEXTAUTH_URL": "https://t3-auth-app.vercel.app",
-    "DATABASE_URL": "@database_url",
-    "GITHUB_ID": "@github_id",
-    "GITHUB_SECRET": "@github_secret",
-    "GOOGLE_CLIENT_ID": "@google_client_id",
-    "GOOGLE_CLIENT_SECRET": "@google_client_secret"
-  }
+  ]
 }
