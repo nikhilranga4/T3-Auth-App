@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "@/lib/prisma"
-import { compare } from "bcrypt"
+import { compare } from "bcryptjs"
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -98,7 +98,7 @@ export const authOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Prevent redirect loops by always returning to baseUrl
+      // Always redirect to dashboard after successful login
       if (url === baseUrl || url.startsWith('/login')) {
         return `${baseUrl}/dashboard`
       }

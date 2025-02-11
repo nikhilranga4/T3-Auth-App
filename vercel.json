@@ -12,8 +12,16 @@
       "dest": "/login"
     },
     {
+      "src": "/signup",
+      "dest": "/signup"
+    },
+    {
       "src": "/dashboard",
       "dest": "/dashboard"
+    },
+    {
+      "src": "/",
+      "dest": "/"
     },
     {
       "src": "/(.*)",
