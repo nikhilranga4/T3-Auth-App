@@ -98,12 +98,12 @@ export const authOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to dashboard after successful login
-      if (url.startsWith('/login') || url === baseUrl) {
+      // Prevent redirect loops by always returning to baseUrl
+      if (url === baseUrl || url.startsWith('/login')) {
         return `${baseUrl}/dashboard`
       }
       
-      // Handle other redirects
+      // Ensure redirects stay within the same domain
       return url.startsWith(baseUrl) ? url : baseUrl
     }
   },
@@ -111,9 +111,6 @@ export const authOptions = {
     async signIn(message) {
       console.log('Sign in event', message)
     },
-    async signOut(message) {
-      console.log('Sign out event', message)
-    }
   },
   debug: process.env.NODE_ENV === 'development'
 }

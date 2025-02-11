@@ -7,6 +7,15 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: process.env.NODE_ENV === 'production'
   },
+  async redirects() {
+    return [
+      {
+        source: '/login',
+        destination: '/login',
+        permanent: false,
+      }
+    ]
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
