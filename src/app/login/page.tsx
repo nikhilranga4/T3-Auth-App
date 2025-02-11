@@ -1,21 +1,36 @@
 "use client"
 
 import { redirect } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { getSession } from 'next-auth/react'
 import { LoginForm } from '../../components/LoginForm'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function LoginPage() {
-  const { data: session, status } = useSession()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      redirect('/dashboard')
+    async function checkSession() {
+      const session = await getSession()
+      
+      if (session) {
+        redirect('/dashboard')
+      }
+      
+      setIsLoading(false)
     }
-  }, [status])
 
-  if (status === 'loading') {
-    return <div>Loading...</div>
+    checkSession()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
