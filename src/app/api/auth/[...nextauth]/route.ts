@@ -6,7 +6,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import { compare } from "bcrypt"
 
-const handler = NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
@@ -105,6 +105,8 @@ const handler = NextAuth({
     },
   },
   debug: process.env.NODE_ENV === 'development'
-})
+}
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }
