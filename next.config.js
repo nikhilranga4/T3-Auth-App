@@ -2,14 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverActions: {
-      allowedOrigins: ['*']
-    }
+    serverActions: true,
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
+        bcrypt: false,
         fs: false,
         net: false,
         tls: false,
