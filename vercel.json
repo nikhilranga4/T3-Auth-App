@@ -8,6 +8,10 @@
       "dest": "/api/auth/[...nextauth]/route.ts"
     },
     {
+      "src": "/",
+      "dest": "/signup"
+    },
+    {
       "src": "/login",
       "dest": "/login"
     },
@@ -20,12 +24,8 @@
       "dest": "/dashboard"
     },
     {
-      "src": "/",
-      "dest": "/"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/"
+      "dest": "/signup"
     }
   ]
 }

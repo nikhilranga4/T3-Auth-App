@@ -83,8 +83,8 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/signup",
+    error: "/signup",
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -99,7 +99,7 @@ export const authOptions = {
     },
     async redirect({ url, baseUrl }) {
       // Always redirect to dashboard after successful login
-      if (url === baseUrl || url.startsWith('/login')) {
+      if (url === baseUrl || url.startsWith('/signup') || url.startsWith('/login')) {
         return `${baseUrl}/dashboard`
       }
       
