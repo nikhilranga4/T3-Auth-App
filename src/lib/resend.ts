@@ -17,22 +17,12 @@ export const sendVerificationEmail = async (
   const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
   
   try {
-    // In development/testing, we'll send all emails to the verified email
-    const recipient = process.env.NODE_ENV === 'production' ? email : VERIFIED_EMAIL;
-    
     const { data, error } = await resend.emails.send({
       from: 'Auth App <onboarding@resend.dev>',
-      to: recipient,
+      to: email,
       subject: 'Verify your email address',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          ${process.env.NODE_ENV !== 'production' ? `
-          <div style="background-color: #fff3cd; color: #856404; padding: 12px; margin-bottom: 20px; border-radius: 4px; border: 1px solid #ffeeba;">
-            <strong>Development Mode Notice:</strong><br>
-            Original recipient: ${email}<br>
-            This email was redirected to: ${recipient}
-          </div>
-          ` : ''}
           <h2 style="color: #333;">Welcome to Auth App${name ? `, ${name}` : ''}!</h2>
           <p style="color: #666; line-height: 1.5;">
             Thank you for signing up. Please verify your email address by clicking the button below:
@@ -54,10 +44,6 @@ export const sendVerificationEmail = async (
         </div>
       `,
       text: `Welcome to Auth App${name ? `, ${name}` : ''}!\n\n` +
-            `${process.env.NODE_ENV !== 'production' ? 
-              `DEVELOPMENT MODE - Original recipient: ${email}\n` +
-              `This email was redirected to: ${recipient}\n\n` 
-              : ''}` +
             `Please verify your email address by clicking this link: ${verificationUrl}\n\n` +
             `If you didn't create an account, you can safely ignore this email.`,
     });
@@ -67,15 +53,7 @@ export const sendVerificationEmail = async (
       throw new Error('Failed to send verification email');
     }
 
-    return {
-      ...data,
-      developmentMode: process.env.NODE_ENV !== 'production' ? {
-        originalRecipient: email,
-        actualRecipient: recipient,
-        verificationToken: token,
-        verificationUrl
-      } : undefined
-    };
+    return data;
   } catch (error) {
     console.error('Error sending verification email:', error);
     throw error;

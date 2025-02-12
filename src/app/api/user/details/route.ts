@@ -3,6 +3,8 @@ import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 import { z } from "zod";
 
+export const dynamic = 'force-dynamic';
+
 const userDetailsSchema = z.object({
   name: z.string().min(1),
   image: z.string().url().optional().nullable(),
