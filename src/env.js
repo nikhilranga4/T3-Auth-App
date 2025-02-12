@@ -23,16 +23,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     VERCEL_URL: z.string().optional(),
-    // Make Cloudinary variables required in production, optional in development
-    CLOUDINARY_CLOUD_NAME: process.env.NODE_ENV === "production"
-      ? z.string().min(1, "CLOUDINARY_CLOUD_NAME is required in production")
-      : z.string().optional(),
-    CLOUDINARY_API_KEY: process.env.NODE_ENV === "production"
-      ? z.string().min(1, "CLOUDINARY_API_KEY is required in production")
-      : z.string().optional(),
-    CLOUDINARY_API_SECRET: process.env.NODE_ENV === "production"
-      ? z.string().min(1, "CLOUDINARY_API_SECRET is required in production")
-      : z.string().optional(),
+    // Make Cloudinary variables required but allow empty strings during build
+    CLOUDINARY_CLOUD_NAME: z.string().optional().or(z.literal("")),
+    CLOUDINARY_API_KEY: z.string().optional().or(z.literal("")),
+    CLOUDINARY_API_SECRET: z.string().optional().or(z.literal("")),
   },
   client: {},
   runtimeEnv: {
@@ -51,7 +45,7 @@ export const env = createEnv({
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   },
-  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
+  skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
   emptyStringAsUndefined: true,
 });
 

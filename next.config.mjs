@@ -21,29 +21,9 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
       }
     ],
+    domains: ['res.cloudinary.com', 'localhost'],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: ['res.cloudinary.com'],
     formats: ['image/avif', 'image/webp'],
-  },
-  images: {
-    domains: ['localhost'],
-    dangerouslyAllowSVG: true,
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: '**.vercel.app',
-      }
-    ],
   },
 };
 
