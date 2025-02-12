@@ -1,11 +1,35 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const domain = process.env.NEXTAUTH_URL;
+// Get environment variables in a type-safe way
+const getEnvVar = (key: string, defaultValue?: string): string => {
+  const value = process.env[key];
+  if (!value && defaultValue === undefined) {
+    throw new Error(`Environment variable ${key} is not set`);
+  }
+  return value ?? defaultValue ?? '';
+};
+
+// Initialize Resend with API key
+const resendApiKey = getEnvVar('RESEND_API_KEY');
+const resend = new Resend(resendApiKey);
+
+// Get the base URL for the application
+const getBaseUrl = () => {
+  const vercelUrl = getEnvVar('VERCEL_URL', '');
+  const nextAuthUrl = getEnvVar('NEXTAUTH_URL', '');
+  const nodeEnv = getEnvVar('NODE_ENV', 'development');
+
+  if (nodeEnv === 'production' && vercelUrl) {
+    return `https://${vercelUrl}`;
+  }
+  return nextAuthUrl;
+};
+
+const domain = getBaseUrl();
 const fromEmail = 'onboarding@resend.dev';
 
 if (!domain) {
-  throw new Error('NEXTAUTH_URL is not set');
+  throw new Error('Application URL is not set');
 }
 
 export const sendVerificationEmail = async (
@@ -21,15 +45,17 @@ export const sendVerificationEmail = async (
   const verificationUrl = `${domain}/api/auth/verify-email?token=${token}`;
   
   try {
+    // Log detailed information about the email sending attempt
     console.log({
-      message: 'Attempting to send verification email',
+      message: 'Starting verification email send attempt',
       email,
       verificationUrl,
       domain,
       environment: process.env.NODE_ENV,
+      timestamp: new Date().toISOString(),
     });
 
-    const { data, error } = await resend.emails.send({
+    const emailData = {
       from: `Auth App <${fromEmail}>`,
       to: [email],
       subject: 'Verify your email address',
@@ -64,11 +90,25 @@ export const sendVerificationEmail = async (
             `Please verify your email address by clicking this link: ${verificationUrl}\n\n` +
             `If you didn't create an account, you can safely ignore this email.`,
       tags: [{ name: 'category', value: 'verification' }]
+    };
+
+    console.log('Sending email with data:', {
+      to: email,
+      from: fromEmail,
+      subject: emailData.subject,
     });
 
+    const { data, error } = await resend.emails.send(emailData);
+
     if (error) {
-      console.error('Resend API Error:', error);
-      throw new Error('Failed to send verification email');
+      console.error('Resend API Error:', {
+        error,
+        errorMessage: error.message,
+        errorName: error.name,
+        email,
+        domain,
+      });
+      throw new Error(`Failed to send verification email: ${error.message}`);
     }
 
     console.log('Email sent successfully:', {
@@ -81,9 +121,13 @@ export const sendVerificationEmail = async (
   } catch (error) {
     console.error('Failed to send verification email:', {
       error,
-      message: error instanceof Error ? error.message : 'Unknown error',
+      errorDetails: error instanceof Error ? {
+        message: error.message,
+        stack: error.stack,
+      } : 'Unknown error',
       email,
       domain,
+      environment: process.env.NODE_ENV,
     });
     throw error;
   }
