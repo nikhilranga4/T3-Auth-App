@@ -1,31 +1,17 @@
 import { Resend } from 'resend';
 import { env } from "~/env";
 
-interface EnvVariables {
-  RESEND_API_KEY: string;
-  VERCEL_URL?: string;
-  NEXTAUTH_URL: string;
-}
-
-const {
-  RESEND_API_KEY: resendApiKey,
-  VERCEL_URL: vercelUrl,
-  NEXTAUTH_URL: nextAuthUrl,
-} = env as unknown as EnvVariables;
-
-if (!resendApiKey) {
+if (!env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY is not set');
 }
 
-const resend = new Resend(resendApiKey);
+const resend = new Resend(env.RESEND_API_KEY);
 
-// In production, use the actual deployment URL
-const domain = process.env.NODE_ENV === 'production'
-  ? 'https://t3-auth-app.vercel.app'
-  : nextAuthUrl;
+// Always use NEXTAUTH_URL as the base URL
+const domain = env.NEXTAUTH_URL;
 
 if (!domain) {
-  throw new Error('Domain URL is not set');
+  throw new Error('NEXTAUTH_URL is not set');
 }
 
 // Ensure we have a verified sender email
@@ -36,16 +22,24 @@ export const sendVerificationEmail = async (
   token: string,
   name?: string
 ) => {
+  if (!email || !token) {
+    console.error('Missing required parameters:', { email, token });
+    throw new Error('Email and token are required');
+  }
+
   const verificationUrl = `${domain}/api/auth/verify-email?token=${token}`;
   
   try {
-    console.log('Attempting to send verification email:');
-    console.log('- To:', email);
-    console.log('- From:', fromEmail);
-    console.log('- Verification URL:', verificationUrl);
-    console.log('- Environment:', process.env.NODE_ENV);
-    console.log('- Domain:', domain);
-    
+    // Log the attempt
+    console.log({
+      message: 'Attempting to send verification email',
+      email,
+      verificationUrl,
+      domain,
+      hasResendKey: !!env.RESEND_API_KEY,
+      environment: env.NODE_ENV,
+    });
+
     const { data, error } = await resend.emails.send({
       from: `Auth App <${fromEmail}>`,
       to: [email],
@@ -80,31 +74,33 @@ export const sendVerificationEmail = async (
       text: `Welcome to Auth App${name ? `, ${name}` : ''}!\n\n` +
             `Please verify your email address by clicking this link: ${verificationUrl}\n\n` +
             `If you didn't create an account, you can safely ignore this email.`,
-      tags: [
-        {
-          name: 'category',
-          value: 'verification'
-        }
-      ]
+      tags: [{ name: 'category', value: 'verification' }]
     });
 
     if (error) {
-      console.error('Resend API Error:', error);
-      throw new Error(error.message || 'Failed to send verification email');
+      console.error('Resend API Error:', {
+        error,
+        message: error.message,
+        name: error.name,
+        statusCode: error.statusCode,
+      });
+      throw error;
     }
 
     console.log('Email sent successfully:', {
       messageId: data?.id,
-      to: email
+      to: email,
+      timestamp: new Date().toISOString(),
     });
     
     return data;
   } catch (error) {
-    console.error('Detailed error sending verification email:', {
+    console.error('Failed to send verification email:', {
       error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
       email,
       domain,
-      fromEmail
     });
     throw error;
   }

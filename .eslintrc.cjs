@@ -1,18 +1,16 @@
 /** @type {import("eslint").Linter.Config} */
 const config = {
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "project": ["./tsconfig.json"]
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: true
   },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "extends": [
+  plugins: ["@typescript-eslint"],
+  extends: [
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:@typescript-eslint/stylistic-type-checked"
   ],
-  "rules": {
+  rules: {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/consistent-type-definitions": "off",
     "@typescript-eslint/consistent-type-imports": [
@@ -38,29 +36,33 @@ const config = {
       }
     ]
   },
-  "overrides": [
+  overrides: [
     {
-      "files": ["src/env.js"],
-      "extends": ["eslint:recommended"],
-      "parser": "espree",
-      "parserOptions": {
-        "ecmaVersion": 2020,
-        "sourceType": "module"
+      // Disable TypeScript-specific rules for JavaScript files
+      files: ["*.js", "*.cjs", "*.mjs"],
+      extends: ["eslint:recommended"],
+      parser: "espree",
+      parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: "module"
       },
-      "env": {
-        "node": true,
-        "es6": true
+      env: {
+        node: true,
+        es6: true
       },
-      "rules": {
+      rules: {
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-return": "off",
-        "@typescript-eslint/no-misused-promises": "off"
+        "@typescript-eslint/no-misused-promises": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ]
-}
+};
 
 module.exports = config;
