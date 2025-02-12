@@ -1,27 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
+import { toast } from "~/components/ui/use-toast";
 
 interface Post {
   id: number;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
   createdById: string;
 }
 
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const [latestPost, setLatestPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
 
-  const utils = api.useUtils();
+  const fetchLatestPost = async () => {
+    try {
+      const response = await fetch("/api/posts/latest");
+      if (!response.ok) throw new Error("Failed to fetch latest post");
+      const data = await response.json();
+      setLatestPost(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch latest post",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [name, setName] = useState("");
-  const createPost = api.post.create.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) throw new Error("Failed to create post");
+
       setName("");
-    },
-  });
+      await fetchLatestPost();
+      toast({
+        description: "Post created successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create post",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="w-full max-w-xs">
@@ -30,13 +75,7 @@ export function LatestPost() {
       ) : (
         <p>You have no posts yet.</p>
       )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          createPost.mutate({ name });
-        }}
-        className="flex flex-col gap-2"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
         <input
           type="text"
           placeholder="Title"
@@ -47,64 +86,45 @@ export function LatestPost() {
         <button
           type="submit"
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-          disabled={createPost.isLoading}
+          disabled={isSubmitting}
         >
-          {createPost.isLoading ? "Submitting..." : "Submit"}
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
   );
 }
 
-export function CreatePost() {
-  const [name, setName] = useState("");
-  const utils = api.useUtils();
-
-  const createPost = api.post.create.useMutation({
-    onSuccess: async () => {
-      await utils.post.invalidate();
-      setName("");
-    },
-  });
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        createPost.mutate({ name });
-      }}
-      className="flex flex-col gap-2"
-    >
-      <input
-        type="text"
-        placeholder="Title"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="w-full rounded-full px-4 py-2 text-black"
-      />
-      <button
-        type="submit"
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        disabled={createPost.isLoading}
-      >
-        {createPost.isLoading ? "Submitting..." : "Submit"}
-      </button>
-    </form>
-  );
-}
-
 export function PostList() {
-  const { data: posts, isLoading } = api.post.getAll.useQuery();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (isLoading) return <div>Loading...</div>;
+  const fetchPosts = async () => {
+    try {
+      const response = await fetch("/api/posts");
+      if (!response.ok) throw new Error("Failed to fetch posts");
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch posts",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col gap-4">
-      {posts?.map((post: Post) => (
+      {posts?.map((post) => (
         <div key={post.id} className="flex gap-4">
           <h3 className="text-2xl font-bold">{post.name}</h3>
           <p className="text-sm text-gray-400">
-            {post.createdAt.toLocaleDateString()}
+            {new Date(post.createdAt).toLocaleDateString()}
           </p>
         </div>
       ))}
