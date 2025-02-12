@@ -4,7 +4,14 @@ if (!process.env.RESEND_API_KEY) {
   throw new Error('Missing RESEND_API_KEY environment variable');
 }
 
+if (!process.env.NEXTAUTH_URL) {
+  throw new Error('Missing NEXTAUTH_URL environment variable');
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+const domain = process.env.NEXTAUTH_URL;
+const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
 // In development/testing, we can only send to the verified email
 const VERIFIED_EMAIL = 'nikhilranga43@gmail.com';
@@ -14,12 +21,15 @@ export const sendVerificationEmail = async (
   token: string,
   name?: string
 ) => {
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${domain}/api/auth/verify-email?token=${token}`;
   
   try {
+    console.log('Sending verification email to:', email);
+    console.log('Verification URL:', verificationUrl);
+    
     const { data, error } = await resend.emails.send({
-      from: 'Auth App <onboarding@resend.dev>',
-      to: email,
+      from: `Auth App <${fromEmail}>`,
+      to: [email],
       subject: 'Verify your email address',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -50,9 +60,10 @@ export const sendVerificationEmail = async (
 
     if (error) {
       console.error('Error sending verification email:', error);
-      throw new Error('Failed to send verification email');
+      throw new Error(error.message || 'Failed to send verification email');
     }
 
+    console.log('Verification email sent successfully:', data);
     return data;
   } catch (error) {
     console.error('Error sending verification email:', error);
