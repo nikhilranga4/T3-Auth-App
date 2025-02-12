@@ -78,13 +78,6 @@
     "tailwindcss": "^3.3.5",
     "typescript": "^5.1.6"
   },
-  "overrides": {
-    "glob": "^10.3.10",
-    "rimraf": "^5.0.5",
-    "@humanwhocodes/object-schema": "^2.0.3",
-    "@humanwhocodes/config-array": "^0.13.0",
-    "inflight": "^2.0.0"
-  },
   "ct3aMetadata": {
     "initVersion": "7.25.1"
   },
