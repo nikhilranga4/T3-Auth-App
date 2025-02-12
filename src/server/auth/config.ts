@@ -6,7 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
 import { db } from "~/server/db";
-import { sendVerificationEmail } from "./email";
+import { sendVerificationEmail } from "~/lib/resend";
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
