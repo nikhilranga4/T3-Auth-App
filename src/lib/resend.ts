@@ -10,8 +10,13 @@ if (!process.env.NEXTAUTH_URL) {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const domain = process.env.NEXTAUTH_URL;
-const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+// Use production domain or fallback to NEXTAUTH_URL
+const domain = process.env.VERCEL_URL 
+  ? `https://${process.env.VERCEL_URL}` 
+  : process.env.NEXTAUTH_URL;
+
+// Ensure we have a verified sender email
+const fromEmail = 'onboarding@resend.dev';
 
 // In development/testing, we can only send to the verified email
 const VERIFIED_EMAIL = 'nikhilranga43@gmail.com';
@@ -24,8 +29,10 @@ export const sendVerificationEmail = async (
   const verificationUrl = `${domain}/api/auth/verify-email?token=${token}`;
   
   try {
-    console.log('Sending verification email to:', email);
-    console.log('Verification URL:', verificationUrl);
+    console.log('Attempting to send verification email:');
+    console.log('- To:', email);
+    console.log('- From:', fromEmail);
+    console.log('- Verification URL:', verificationUrl);
     
     const { data, error } = await resend.emails.send({
       from: `Auth App <${fromEmail}>`,
@@ -51,22 +58,42 @@ export const sendVerificationEmail = async (
             Or copy and paste this URL into your browser:<br>
             <span style="color: #0070f3;">${verificationUrl}</span>
           </p>
+          <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;" />
+          <p style="color: #666; font-size: 12px;">
+            This email was sent from Auth App. If you did not sign up for an account,
+            please ignore this email.
+          </p>
         </div>
       `,
       text: `Welcome to Auth App${name ? `, ${name}` : ''}!\n\n` +
             `Please verify your email address by clicking this link: ${verificationUrl}\n\n` +
             `If you didn't create an account, you can safely ignore this email.`,
+      tags: [
+        {
+          name: 'category',
+          value: 'verification'
+        }
+      ]
     });
 
     if (error) {
-      console.error('Error sending verification email:', error);
+      console.error('Resend API Error:', error);
       throw new Error(error.message || 'Failed to send verification email');
     }
 
-    console.log('Verification email sent successfully:', data);
+    console.log('Email sent successfully:', {
+      messageId: data?.id,
+      to: email
+    });
+    
     return data;
   } catch (error) {
-    console.error('Error sending verification email:', error);
+    console.error('Detailed error sending verification email:', {
+      error,
+      email,
+      domain,
+      fromEmail
+    });
     throw error;
   }
 }; 

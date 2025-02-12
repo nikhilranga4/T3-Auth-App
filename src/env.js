@@ -13,7 +13,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     RESEND_API_KEY: z.string(),
-    EMAIL_FROM: z.string().email().optional().default("onboarding@resend.dev"),
+    VERCEL_URL: z.string().optional(),
     NEXTAUTH_URL: z.string().url(),
   },
   client: {},
@@ -23,7 +23,7 @@ export const env = createEnv({
     DIRECT_URL: process.env.DIRECT_URL,
     NODE_ENV: process.env.NODE_ENV,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
-    EMAIL_FROM: process.env.EMAIL_FROM,
+    VERCEL_URL: process.env.VERCEL_URL,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
