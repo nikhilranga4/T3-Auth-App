@@ -4,8 +4,12 @@ import { env } from "~/env.mjs";
 const transporter = nodemailer.createTransport({
 	service: 'gmail',
 	auth: {
+		type: 'OAuth2',
 		user: env.GMAIL_USER,
-		pass: env.GMAIL_APP_PASSWORD,
+		clientId: env.GMAIL_CLIENT_ID,
+		clientSecret: env.GMAIL_CLIENT_SECRET,
+		refreshToken: env.GMAIL_REFRESH_TOKEN,
+		accessToken: env.GMAIL_ACCESS_TOKEN,
 	},
 });
 
