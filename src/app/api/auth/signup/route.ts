@@ -52,7 +52,7 @@ export async function POST(req: Request) {
 
 		// Send verification email
 		try {
-			await sendVerificationEmail(email, verificationToken, name);
+			await sendVerificationEmail(email, verificationToken);
 		} catch (error) {
 			console.error("Error sending verification email:", error);
 			// Delete the user if email sending fails
