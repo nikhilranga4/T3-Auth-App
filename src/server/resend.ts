@@ -19,13 +19,13 @@ if (!resendApiKey) {
 
 const resend = new Resend(resendApiKey);
 
-// Use production domain or fallback to NEXTAUTH_URL
-const domain = vercelUrl 
-  ? `https://${vercelUrl}` 
+// In production, use the actual deployment URL
+const domain = process.env.NODE_ENV === 'production'
+  ? 'https://t3-auth-app.vercel.app'
   : nextAuthUrl;
 
 if (!domain) {
-  throw new Error('Neither VERCEL_URL nor NEXTAUTH_URL is set');
+  throw new Error('Domain URL is not set');
 }
 
 // Ensure we have a verified sender email
@@ -43,6 +43,8 @@ export const sendVerificationEmail = async (
     console.log('- To:', email);
     console.log('- From:', fromEmail);
     console.log('- Verification URL:', verificationUrl);
+    console.log('- Environment:', process.env.NODE_ENV);
+    console.log('- Domain:', domain);
     
     const { data, error } = await resend.emails.send({
       from: `Auth App <${fromEmail}>`,
