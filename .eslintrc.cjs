@@ -2,7 +2,7 @@
 const config = {
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": true
+    "project": ["./tsconfig.json"]
   },
   "plugins": [
     "@typescript-eslint"
@@ -41,16 +41,23 @@ const config = {
   "overrides": [
     {
       "files": ["src/env.js"],
+      "extends": ["eslint:recommended"],
       "parser": "espree",
       "parserOptions": {
-        "ecmaVersion": 2020
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+      },
+      "env": {
+        "node": true,
+        "es6": true
       },
       "rules": {
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
         "@typescript-eslint/no-unsafe-call": "off",
-        "@typescript-eslint/no-unsafe-return": "off"
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-misused-promises": "off"
       }
     }
   ]

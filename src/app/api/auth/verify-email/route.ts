@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "~/server/db";
 
-export async function GET(request: Request) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
 	try {
-		const { searchParams } = new URL(request.url);
+		const searchParams = request.nextUrl.searchParams;
 		const token = searchParams.get("token");
 
 		if (!token) {
@@ -44,12 +46,7 @@ export async function GET(request: Request) {
 		});
 
 		// Redirect to sign-in page with success message
-		return new NextResponse(null, {
-			status: 302,
-			headers: {
-				Location: "/signin?verified=true",
-			},
-		});
+		return NextResponse.redirect(new URL("/signin?verified=true", request.url));
 	} catch (error) {
 		console.error("Error verifying email:", error);
 		return new NextResponse(
