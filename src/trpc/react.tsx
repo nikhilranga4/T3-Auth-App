@@ -36,11 +36,17 @@ export type RouterInputs = inferRouterInputs<AppRouter>;
  */
 export type RouterOutputs = inferRouterOutputs<AppRouter>;
 
-export function TRPCReactProvider(props: { children: React.ReactNode }) {
+interface TRPCReactProviderProps {
+  children: React.ReactNode;
+  cookies: string;
+}
+
+export function TRPCReactProvider({ children, cookies }: TRPCReactProviderProps) {
   const queryClient = getQueryClient();
 
   const [trpcClient] = useState(() =>
     api.createClient({
+      transformer: SuperJSON,
       links: [
         loggerLink({
           enabled: (op) =>
@@ -48,11 +54,12 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             (op.direction === "down" && op.result instanceof Error),
         }),
         unstable_httpBatchStreamLink({
-          transformer: SuperJSON,
           url: getBaseUrl() + "/api/trpc",
           headers: () => {
-            const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
+            const headers: Record<string, string> = {
+              "x-trpc-source": "nextjs-react",
+              cookie: cookies,
+            };
             return headers;
           },
         }),
@@ -63,7 +70,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <api.Provider client={trpcClient} queryClient={queryClient}>
-        {props.children}
+        {children}
       </api.Provider>
     </QueryClientProvider>
   );
