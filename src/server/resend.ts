@@ -1,16 +1,28 @@
 import { Resend } from 'resend';
 import { env } from "~/env";
 
-if (!env.RESEND_API_KEY) {
+interface EnvVariables {
+  RESEND_API_KEY: string;
+  VERCEL_URL?: string;
+  NEXTAUTH_URL: string;
+}
+
+const {
+  RESEND_API_KEY: resendApiKey,
+  VERCEL_URL: vercelUrl,
+  NEXTAUTH_URL: nextAuthUrl,
+} = env as unknown as EnvVariables;
+
+if (!resendApiKey) {
   throw new Error('RESEND_API_KEY is not set');
 }
 
-const resend = new Resend(env.RESEND_API_KEY);
+const resend = new Resend(resendApiKey);
 
 // Use production domain or fallback to NEXTAUTH_URL
-const domain = env.VERCEL_URL 
-  ? `https://${env.VERCEL_URL}` 
-  : env.NEXTAUTH_URL;
+const domain = vercelUrl 
+  ? `https://${vercelUrl}` 
+  : nextAuthUrl;
 
 if (!domain) {
   throw new Error('Neither VERCEL_URL nor NEXTAUTH_URL is set');
