@@ -12,9 +12,14 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    RESEND_API_KEY: z.string(),
+    RESEND_API_KEY: z.string().min(1),
     VERCEL_URL: z.string().optional(),
-    NEXTAUTH_URL: z.string().url(),
+    NEXTAUTH_URL: z.preprocess(
+      // This makes Vercel deployments not fail if you don't set NEXTAUTH_URL
+      // Since the URL will be known at deploy time
+      (str) => process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : str,
+      z.string().url(),
+    ),
   },
   client: {},
   runtimeEnv: {

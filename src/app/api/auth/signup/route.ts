@@ -3,7 +3,9 @@ import { z } from "zod";
 import { db } from "~/server/db";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import { sendVerificationEmail } from "~/lib/resend";
+import { sendVerificationEmail } from "~/server/resend";
+
+export const dynamic = 'force-dynamic';
 
 const signUpSchema = z.object({
 	email: z.string().email(),

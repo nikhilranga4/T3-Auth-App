@@ -1,25 +1,23 @@
 import { Resend } from 'resend';
+import { env } from "~/env";
 
-if (!process.env.RESEND_API_KEY) {
-  throw new Error('Missing RESEND_API_KEY environment variable');
+if (!env.RESEND_API_KEY) {
+  throw new Error('RESEND_API_KEY is not set');
 }
 
-if (!process.env.NEXTAUTH_URL) {
-  throw new Error('Missing NEXTAUTH_URL environment variable');
-}
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(env.RESEND_API_KEY);
 
 // Use production domain or fallback to NEXTAUTH_URL
-const domain = process.env.VERCEL_URL 
-  ? `https://${process.env.VERCEL_URL}` 
-  : process.env.NEXTAUTH_URL;
+const domain = env.VERCEL_URL 
+  ? `https://${env.VERCEL_URL}` 
+  : env.NEXTAUTH_URL;
+
+if (!domain) {
+  throw new Error('Neither VERCEL_URL nor NEXTAUTH_URL is set');
+}
 
 // Ensure we have a verified sender email
 const fromEmail = 'onboarding@resend.dev';
-
-// In development/testing, we can only send to the verified email
-const VERIFIED_EMAIL = 'nikhilranga43@gmail.com';
 
 export const sendVerificationEmail = async (
   email: string,
