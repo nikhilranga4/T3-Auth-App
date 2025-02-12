@@ -1,5 +1,5 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import { type NextAuthConfig } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -7,27 +7,6 @@ import bcrypt from "bcryptjs";
 
 import { db } from "~/server/db";
 import { sendVerificationEmail } from "./email";
-
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
-declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    } & DefaultSession["user"];
-  }
-
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
-}
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -51,24 +30,42 @@ export const authConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+
+        if (!email || !password) {
+          return null;
+        }
+
         const user = await db.user.findUnique({
-          where: { email: credentials?.email },
+          where: { email },
+          select: {
+            id: true,
+            email: true,
+            password: true,
+            name: true,
+            image: true,
+          },
         });
 
-        if (!user) {
-          throw new Error("User not found");
+        if (!user?.password) {
+          return null;
         }
 
-        const passwordMatch = await bcrypt.compare(
-          credentials?.password,
-          user.password
-        );
+        const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
-          throw new Error("Invalid password");
+          return null;
         }
 
-        return user;
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
       },
     }),
   ],
@@ -85,7 +82,7 @@ export const authConfig = {
   },
   events: {
     createUser: async ({ user }) => {
-      if (user.email) {
+      if (user.email && user.id) {
         await sendVerificationEmail(user.email, user.id);
       }
     },
