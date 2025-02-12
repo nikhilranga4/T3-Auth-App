@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "~/server/auth";
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req: Request) {
   try {
@@ -27,33 +27,37 @@ export async function POST(req: Request) {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       return new NextResponse(
-        JSON.stringify({ message: "Invalid file type" }),
+        JSON.stringify({ message: "Invalid file type. Only images are allowed." }),
         { status: 400 }
       );
     }
 
-    // Get file extension
-    const ext = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${ext}`;
-
-    // Create uploads directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads');
-    try {
-      await writeFile(join(uploadDir, fileName), Buffer.from(await file.arrayBuffer()));
-    } catch (error) {
-      console.error('Error saving file:', error);
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
       return new NextResponse(
-        JSON.stringify({ message: "Error saving file" }),
-        { status: 500 }
+        JSON.stringify({ message: "File size too large. Maximum size is 5MB." }),
+        { status: 400 }
       );
     }
 
-    const url = `/uploads/${fileName}`;
+    try {
+      // Convert file to base64
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64String = buffer.toString('base64');
+      const url = `data:${file.type};base64,${base64String}`;
 
-    return new NextResponse(
-      JSON.stringify({ url }),
-      { status: 200 }
-    );
+      return new NextResponse(
+        JSON.stringify({ url }),
+        { status: 200 }
+      );
+    } catch (error) {
+      console.error('Error processing file:', error);
+      return new NextResponse(
+        JSON.stringify({ message: "Error processing file" }),
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error handling upload:', error);
     return new NextResponse(

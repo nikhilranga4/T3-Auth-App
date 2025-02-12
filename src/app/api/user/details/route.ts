@@ -14,20 +14,17 @@ const userDetailsSchema = z.object({
   image: z.string().url().optional().nullable(),
 });
 
-export async function GET(_req: Request) {
+export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return new NextResponse(
-        JSON.stringify({ message: "Unauthorized" }),
-        { status: 401 }
-      );
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: {
-        fullName: true,
+        name: true,
         fbLink: true,
         linkedinLink: true,
         gender: true,
@@ -36,16 +33,14 @@ export async function GET(_req: Request) {
       },
     });
 
-    return new NextResponse(
-      JSON.stringify(user),
-      { status: 200 }
-    );
+    if (!user) {
+      return new NextResponse("User not found", { status: 404 });
+    }
+
+    return NextResponse.json(user);
   } catch (error) {
     console.error("Error fetching user details:", error);
-    return new NextResponse(
-      JSON.stringify({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 
@@ -53,50 +48,33 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return new NextResponse(
-        JSON.stringify({ message: "Unauthorized" }),
-        { status: 401 }
-      );
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    const body = await req.json();
-    const result = userDetailsSchema.safeParse(body);
+    const data = await req.json();
+    const { fullName, fbLink, linkedinLink, gender, dateOfBirth, image } = data;
 
-    if (!result.success) {
-      return new NextResponse(
-        JSON.stringify({ 
-          message: "Invalid data", 
-          errors: result.error.errors 
-        }),
-        { status: 400 }
-      );
+    // Validate required fields
+    if (!fullName) {
+      return new NextResponse("Full name is required", { status: 400 });
     }
 
+    // Update user details in database
     const updatedUser = await db.user.update({
       where: { id: session.user.id },
       data: {
-        ...result.data,
-        dateOfBirth: result.data.dateOfBirth ? new Date(result.data.dateOfBirth) : null,
-      },
-      select: {
-        fullName: true,
-        fbLink: true,
-        linkedinLink: true,
-        gender: true,
-        dateOfBirth: true,
-        image: true,
+        name: fullName,
+        fbLink,
+        linkedinLink,
+        gender,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        image: image || undefined, // Store base64 image string directly
       },
     });
 
-    return new NextResponse(
-      JSON.stringify(updatedUser),
-      { status: 200 }
-    );
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user details:", error);
-    return new NextResponse(
-      JSON.stringify({ message: "Internal server error" }),
-      { status: 500 }
-    );
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 } 

@@ -79,6 +79,16 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       return;
     }
 
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "File size too large. Maximum size is 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setUploadingImage(true);
       const formData = new FormData();
@@ -132,7 +142,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
           fbLink,
           linkedinLink,
           gender,
-          dateOfBirth,
+          dateOfBirth: dateOfBirth?.toISOString(),
           image,
         }),
       });
