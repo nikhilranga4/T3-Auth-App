@@ -96,8 +96,8 @@ export const authConfig = {
           });
 
           if (existingUser) {
-            // Only update if the existing image is not a base64
-            const shouldUpdateImage = !existingUser.image?.startsWith('data:image');
+            // Only update if the existing image is not a Cloudinary URL
+            const shouldUpdateImage = !existingUser.image?.includes('res.cloudinary.com');
             
             await db.user.update({
               where: { id: existingUser.id },
@@ -118,8 +118,8 @@ export const authConfig = {
       if (user) {
         token.id = user.id;
         token.email = user.email;
-        // Preserve base64 images
-        if (user.image?.startsWith('data:image')) {
+        // Preserve Cloudinary images
+        if (user.image?.includes('res.cloudinary.com')) {
           token.picture = user.image;
         }
       }
