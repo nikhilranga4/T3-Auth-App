@@ -24,9 +24,9 @@ export const authConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
+          prompt: "select_account",
           access_type: "offline",
           response_type: "code",
-          prompt: "select_account"
         }
       }
     }),
@@ -88,20 +88,22 @@ export const authConfig = {
         if (account?.provider === "google") {
           const existingUser = await db.user.findUnique({
             where: { email: user.email! },
+            select: {
+              id: true,
+              image: true,
+              emailVerified: true
+            }
           });
 
           if (existingUser) {
-            // Keep the existing image if it's a base64 image
-            const image = existingUser.image?.startsWith('data:image') 
-              ? existingUser.image 
-              : profile?.picture;
-
+            // Only update if the existing image is not a base64
+            const shouldUpdateImage = !existingUser.image?.startsWith('data:image');
+            
             await db.user.update({
               where: { id: existingUser.id },
               data: {
-                name: profile?.name,
-                image,
-                emailVerified: new Date(),
+                emailVerified: existingUser.emailVerified ?? new Date(),
+                image: shouldUpdateImage ? profile?.picture : existingUser.image,
               },
             });
           }
@@ -109,7 +111,7 @@ export const authConfig = {
         return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
-        return true; // Still allow sign in even if update fails
+        return true;
       }
     },
     jwt: async ({ token, user, account }) => {
