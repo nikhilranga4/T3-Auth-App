@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import { api } from "~/trpc/react";
-import type { RouterOutputs } from "~/trpc/shared";
 
-type Post = RouterOutputs["post"]["getAll"][number];
+interface Post {
+  id: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: string;
+}
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -42,9 +47,9 @@ export function LatestPost() {
         <button
           type="submit"
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-          disabled={createPost.status === "pending"}
+          disabled={createPost.isLoading}
         >
-          {createPost.status === "pending" ? "Submitting..." : "Submit"}
+          {createPost.isLoading ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
@@ -53,9 +58,11 @@ export function LatestPost() {
 
 export function CreatePost() {
   const [name, setName] = useState("");
+  const utils = api.useUtils();
 
   const createPost = api.post.create.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      await utils.post.invalidate();
       setName("");
     },
   });
@@ -78,18 +85,18 @@ export function CreatePost() {
       <button
         type="submit"
         className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        disabled={createPost.status === "pending"}
+        disabled={createPost.isLoading}
       >
-        {createPost.status === "pending" ? "Submitting..." : "Submit"}
+        {createPost.isLoading ? "Submitting..." : "Submit"}
       </button>
     </form>
   );
 }
 
 export function PostList() {
-  const { data: posts, status } = api.post.getAll.useQuery();
+  const { data: posts, isLoading } = api.post.getAll.useQuery();
 
-  if (status === "pending") return <div>Loading...</div>;
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col gap-4">
