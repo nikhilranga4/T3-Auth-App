@@ -21,7 +21,7 @@ export function LatestPost() {
     try {
       const response = await fetch("/api/posts/latest");
       if (!response.ok) throw new Error("Failed to fetch latest post");
-      const data = await response.json();
+      const data = (await response.json()) as Post;
       setLatestPost(data);
     } catch (error) {
       toast({
@@ -35,7 +35,7 @@ export function LatestPost() {
   };
 
   useEffect(() => {
-    fetchLatestPost();
+    void fetchLatestPost();
   }, []);
 
   const [name, setName] = useState("");
@@ -107,7 +107,7 @@ export function PostList() {
     try {
       const response = await fetch("/api/posts");
       if (!response.ok) throw new Error("Failed to fetch posts");
-      const data = await response.json();
+      const data = (await response.json()) as Post[];
       setPosts(data);
     } catch (error) {
       toast({
@@ -121,7 +121,7 @@ export function PostList() {
   };
 
   useEffect(() => {
-    fetchPosts();
+    void fetchPosts();
   }, []);
 
   if (loading) return <div>Loading...</div>;

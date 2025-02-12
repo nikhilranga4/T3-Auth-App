@@ -5,11 +5,12 @@ import { ThemeProvider } from "next-themes";
 import { type PropsWithChildren } from "react";
 import { Toaster } from "~/components/ui/toaster";
 
-interface ProvidersProps {
+type ProvidersProps = PropsWithChildren<{
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cookies: string;
-}
+}>;
 
-export function Providers({ children, cookies }: PropsWithChildren<ProvidersProps>) {
+export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider

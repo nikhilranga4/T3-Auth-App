@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
+    const body = await req.json() as { name: string };
     const { name } = postSchema.parse(body);
 
     const post = await db.post.create({
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new NextResponse(
-        JSON.stringify({ message: error.errors[0]?.message || "Invalid data" }),
+        JSON.stringify({ message: error.errors[0]?.message ?? "Invalid data" }),
         { status: 400 }
       );
     }
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
