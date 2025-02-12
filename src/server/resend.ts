@@ -1,21 +1,12 @@
 import { Resend } from 'resend';
-import { env } from "~/env";
 
-if (!env.RESEND_API_KEY) {
-  throw new Error('RESEND_API_KEY is not set');
-}
-
-const resend = new Resend(env.RESEND_API_KEY);
-
-// Always use NEXTAUTH_URL as the base URL
-const domain = env.NEXTAUTH_URL;
+const resend = new Resend(process.env.RESEND_API_KEY);
+const domain = process.env.NEXTAUTH_URL;
+const fromEmail = 'onboarding@resend.dev';
 
 if (!domain) {
   throw new Error('NEXTAUTH_URL is not set');
 }
-
-// Ensure we have a verified sender email
-const fromEmail = 'onboarding@resend.dev';
 
 export const sendVerificationEmail = async (
   email: string,
@@ -30,14 +21,12 @@ export const sendVerificationEmail = async (
   const verificationUrl = `${domain}/api/auth/verify-email?token=${token}`;
   
   try {
-    // Log the attempt
     console.log({
       message: 'Attempting to send verification email',
       email,
       verificationUrl,
       domain,
-      hasResendKey: !!env.RESEND_API_KEY,
-      environment: env.NODE_ENV,
+      environment: process.env.NODE_ENV,
     });
 
     const { data, error } = await resend.emails.send({
@@ -78,13 +67,8 @@ export const sendVerificationEmail = async (
     });
 
     if (error) {
-      console.error('Resend API Error:', {
-        error,
-        message: error.message,
-        name: error.name,
-        statusCode: error.statusCode,
-      });
-      throw error;
+      console.error('Resend API Error:', error);
+      throw new Error('Failed to send verification email');
     }
 
     console.log('Email sent successfully:', {
@@ -98,7 +82,6 @@ export const sendVerificationEmail = async (
     console.error('Failed to send verification email:', {
       error,
       message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
       email,
       domain,
     });
