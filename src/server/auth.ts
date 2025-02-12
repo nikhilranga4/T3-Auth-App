@@ -22,7 +22,7 @@ interface Credentials {
 }
 
 export const { auth, handlers } = NextAuth({
-	adapter: PrismaAdapter(db),
+	adapter: PrismaAdapter(db) as any,
 	providers: [
 		GitHubProvider({
 			clientId: process.env.GITHUB_ID ?? "",
@@ -58,7 +58,7 @@ export const { auth, handlers } = NextAuth({
 				});
 
 				if (!user) {
-					throw new Error("User not found");
+					throw new Error("Email does not exist");
 				}
 
 				if (!user.password) {
@@ -72,7 +72,7 @@ export const { auth, handlers } = NextAuth({
 				const isPasswordValid = await compare(password, user.password);
 
 				if (!isPasswordValid) {
-					throw new Error("Invalid credentials");
+					throw new Error("Incorrect password");
 				}
 
 				return {
