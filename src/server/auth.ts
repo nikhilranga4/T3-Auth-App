@@ -22,7 +22,7 @@ interface Credentials {
 }
 
 export const { auth, handlers } = NextAuth({
-	adapter: PrismaAdapter(db) as any,
+	adapter: PrismaAdapter(db),
 	providers: [
 		GitHubProvider({
 			clientId: process.env.GITHUB_ID ?? "",
@@ -39,7 +39,7 @@ export const { auth, handlers } = NextAuth({
 				password: { label: "Password", type: "password" }
 			},
 			async authorize(credentials): Promise<User | null> {
-				if (!credentials || !credentials.email || !credentials.password) {
+				if (!credentials?.email || !credentials?.password) {
 					throw new Error("Email and password required");
 				}
 
@@ -93,7 +93,7 @@ export const { auth, handlers } = NextAuth({
 			return token;
 		},
 		async session({ session, token }) {
-			if (session.user) {
+			if (session?.user) {
 				session.user.id = token.id as string;
 				session.user.image = token.image as string | null;
 			}

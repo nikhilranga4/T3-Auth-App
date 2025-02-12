@@ -59,8 +59,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchUserDetails();
-  }, [router]);
+    void (async () => {
+      await fetchUserDetails();
+    })();
+  }, [fetchUserDetails]);
 
   const handleSignOut = async () => {
     try {
@@ -94,8 +96,6 @@ export default function DashboardPage() {
     }
   };
 
-  const displayImage = userDetails?.image || session?.user?.image;
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -106,6 +106,8 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  const displayImage = userDetails?.image ?? session?.user?.image;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -129,7 +131,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {userDetails?.fullName || session?.user?.name || "My Profile"}
+                {userDetails?.fullName ?? session?.user?.name ?? "My Profile"}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Manage your personal information and preferences

@@ -85,18 +85,26 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         throw new Error('Failed to upload image');
       }
 
-      const data = await response.json();
+      const data: { url: string } = await response.json();
       setImage(data.url);
       toast({
         title: "Success",
         description: "Image uploaded successfully",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive",
+        });
+      }
     } finally {
       setUploadingImage(false);
     }
@@ -122,10 +130,10 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to update user details");
+        throw new Error(error.message ?? "Failed to update user details");
       }
 
-      const updatedData = await response.json();
+      const data = await response.json();
       
       toast({
         title: "Success",
@@ -144,12 +152,20 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       }
 
       router.refresh();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

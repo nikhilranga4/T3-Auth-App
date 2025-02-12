@@ -4,15 +4,11 @@ import { db } from "~/server/db";
 import { z } from "zod";
 
 const userDetailsSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  fbLink: z.string().url().optional().nullable(),
-  linkedinLink: z.string().url().optional().nullable(),
-  gender: z.enum(["male", "female", "other", "prefer-not-to-say"]),
-  dateOfBirth: z.string().transform((str) => new Date(str)),
-  image: z.string().optional().nullable(),
+  name: z.string().min(1),
+  image: z.string().url().optional().nullable(),
 });
 
-export async function POST(req: Request) {
+export async function PUT(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -23,41 +19,29 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const validatedData = userDetailsSchema.parse(body);
+    const result = userDetailsSchema.safeParse(body);
 
-    const updatedUser = await db.user.update({
-      where: { id: session.user.id },
-      data: {
-        fullName: validatedData.fullName,
-        fbLink: validatedData.fbLink,
-        linkedinLink: validatedData.linkedinLink,
-        gender: validatedData.gender,
-        dateOfBirth: validatedData.dateOfBirth,
-        image: validatedData.image,
-      },
-    });
-
-    return new NextResponse(
-      JSON.stringify({
-        message: "User details updated successfully",
-        user: {
-          ...updatedUser,
-          dateOfBirth: updatedUser.dateOfBirth?.toISOString(),
-        },
-      }),
-      { status: 200 }
-    );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (!result.success) {
       return new NextResponse(
-        JSON.stringify({
-          message: "Invalid data",
-          errors: error.errors,
-        }),
+        JSON.stringify({ message: result.error.errors[0]?.message ?? "Invalid data" }),
         { status: 400 }
       );
     }
 
+    const updatedUser = await db.user.update({
+      where: { id: session.user.id },
+      data: result.data,
+      select: {
+        name: true,
+        image: true,
+      },
+    });
+
+    return new NextResponse(
+      JSON.stringify(updatedUser),
+      { status: 200 }
+    );
+  } catch (error) {
     console.error("Error updating user details:", error);
     return new NextResponse(
       JSON.stringify({ message: "Internal server error" }),
@@ -66,7 +50,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
@@ -79,20 +63,13 @@ export async function GET(req: Request) {
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: {
-        fullName: true,
-        fbLink: true,
-        linkedinLink: true,
-        gender: true,
-        dateOfBirth: true,
+        name: true,
         image: true,
       },
     });
 
     return new NextResponse(
-      JSON.stringify({
-        ...user,
-        dateOfBirth: user?.dateOfBirth?.toISOString(),
-      }),
+      JSON.stringify(user),
       { status: 200 }
     );
   } catch (error) {

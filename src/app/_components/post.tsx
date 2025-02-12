@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
 import { toast } from "~/components/ui/use-toast";
 
 interface Post {
@@ -15,7 +14,6 @@ interface Post {
 export function LatestPost() {
   const [latestPost, setLatestPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
-  const { data: session } = useSession();
 
   const fetchLatestPost = async () => {
     try {

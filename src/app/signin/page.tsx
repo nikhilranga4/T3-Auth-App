@@ -181,7 +181,7 @@ export default function SignInPage() {
 							href="/signup"
 							className="text-sm text-blue-600 hover:text-blue-500"
 						>
-							Don't have an account? Sign Up
+							Don&apos;t have an account? Sign Up
 						</Link>
 					</div>
 				</CardContent>

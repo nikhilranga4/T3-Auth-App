@@ -19,7 +19,7 @@ const Calendar: React.FC<CalendarProps> = ({
   mode = "single",
   initialFocus 
 }) => {
-  const [currentDate, setCurrentDate] = React.useState(() => selected || new Date());
+  const [currentDate, setCurrentDate] = React.useState(() => selected ?? new Date());
 
   const getDaysInMonth = (date: Date): number => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
