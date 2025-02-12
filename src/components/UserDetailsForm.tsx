@@ -306,7 +306,6 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               <Calendar
                 selected={dateOfBirth}
                 onSelect={setDateOfBirth}
-                initialFocus
               />
             </PopoverContent>
           </Popover>
