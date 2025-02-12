@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-
 import { api } from "~/trpc/react";
+import type { RouterOutputs } from "~/trpc/shared";
+
+type Post = RouterOutputs["post"]["getAll"][number];
 
 export function LatestPost() {
   const [latestPost] = api.post.getLatest.useSuspenseQuery();
@@ -40,9 +42,9 @@ export function LatestPost() {
         <button
           type="submit"
           className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-          disabled={createPost.isPending}
+          disabled={createPost.status === "pending"}
         >
-          {createPost.isPending ? "Submitting..." : "Submit"}
+          {createPost.status === "pending" ? "Submitting..." : "Submit"}
         </button>
       </form>
     </div>
@@ -76,22 +78,22 @@ export function CreatePost() {
       <button
         type="submit"
         className="rounded-full bg-white/10 px-10 py-3 font-semibold transition hover:bg-white/20"
-        disabled={createPost.isLoading}
+        disabled={createPost.status === "pending"}
       >
-        {createPost.isLoading ? "Submitting..." : "Submit"}
+        {createPost.status === "pending" ? "Submitting..." : "Submit"}
       </button>
     </form>
   );
 }
 
 export function PostList() {
-  const { data: posts, isLoading } = api.post.getAll.useQuery();
+  const { data: posts, status } = api.post.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (status === "pending") return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col gap-4">
-      {posts?.map((post) => (
+      {posts?.map((post: Post) => (
         <div key={post.id} className="flex gap-4">
           <h3 className="text-2xl font-bold">{post.name}</h3>
           <p className="text-sm text-gray-400">
