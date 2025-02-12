@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "~/components/ui/use-toast";
 
@@ -33,6 +33,10 @@ export function LatestPost() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchLatestPost();
+  }, []);
 
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,6 +119,10 @@ export function PostList() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   if (loading) return <div>Loading...</div>;
 
