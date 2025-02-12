@@ -44,6 +44,14 @@ interface UserDetailsFormProps {
   onCancel?: () => void;
 }
 
+interface UploadResponse {
+  url: string;
+}
+
+interface ErrorResponse {
+  message: string;
+}
+
 export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetailsFormProps) {
   const [fullName, setFullName] = useState(initialData?.fullName ?? "");
   const [fbLink, setFbLink] = useState(initialData?.fbLink ?? "");
@@ -82,10 +90,11 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload image');
+        const error = await response.json() as ErrorResponse;
+        throw new Error(error.message ?? 'Failed to upload image');
       }
 
-      const data: { url: string } = await response.json();
+      const data = await response.json() as UploadResponse;
       setImage(data.url);
       toast({
         title: "Success",
@@ -129,12 +138,10 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       });
 
       if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json() as ErrorResponse;
         throw new Error(error.message ?? "Failed to update user details");
       }
 
-      const data = await response.json();
-      
       toast({
         title: "Success",
         description: "Your details have been updated successfully.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { UserDetailsForm } from "~/components/UserDetailsForm";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
@@ -35,7 +35,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
 
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     try {
       const response = await fetch("/api/user/details");
       if (!response.ok) {
@@ -45,7 +45,7 @@ export default function DashboardPage() {
         }
         throw new Error("Failed to fetch user details");
       }
-      const data = await response.json();
+      const data = (await response.json()) as UserDetails;
       setUserDetails(data);
     } catch (error) {
       toast({
@@ -56,12 +56,10 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
-    void (async () => {
-      await fetchUserDetails();
-    })();
+    void fetchUserDetails();
   }, [fetchUserDetails]);
 
   const handleSignOut = async () => {

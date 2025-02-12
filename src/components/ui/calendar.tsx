@@ -8,16 +8,12 @@ interface CalendarProps {
   selected?: Date;
   onSelect?: (date: Date) => void;
   className?: string;
-  mode?: "single" | "range" | "multiple";
-  initialFocus?: boolean;
 }
 
 const Calendar: React.FC<CalendarProps> = ({ 
   selected, 
   onSelect, 
-  className,
-  mode = "single",
-  initialFocus 
+  className
 }) => {
   const [currentDate, setCurrentDate] = React.useState(() => selected ?? new Date());
 

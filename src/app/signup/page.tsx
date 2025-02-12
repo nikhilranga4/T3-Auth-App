@@ -28,6 +28,15 @@ const signupSchema = z.object({
 	path: ["confirmPassword"],
 });
 
+interface SignupResponse {
+	message: string;
+	userId?: string;
+}
+
+interface ErrorResponse {
+	message: string;
+}
+
 export default function SignUpPage() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
@@ -55,18 +64,18 @@ export default function SignUpPage() {
 				}),
 			});
 
-			const data = await response.json();
+			const data = await response.json() as SignupResponse;
 
 			if (!response.ok) {
-				throw new Error(data.message || "Something went wrong");
+				throw new Error(data.message ?? "Something went wrong");
 			}
 
 			toast({
-				description: "Email verification is sent to your email. Please check.",
+				description: data.message ?? "Email verification is sent to your email. Please check.",
 			});
 
 			router.push("/signin");
-		} catch (error: unknown) {
+		} catch (error) {
 			const errorMessage = 
 				error instanceof z.ZodError && error.errors[0]?.message
 					? error.errors[0].message
