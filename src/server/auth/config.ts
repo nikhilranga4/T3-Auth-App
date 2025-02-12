@@ -22,6 +22,13 @@ export const authConfig = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -69,7 +76,7 @@ export const authConfig = {
       },
     }),
   ],
-
+  debug: process.env.NODE_ENV === 'development',
   adapter: PrismaAdapter(db),
   callbacks: {
     session: ({ session, user }) => ({
@@ -79,6 +86,15 @@ export const authConfig = {
         id: user.id,
       },
     }),
+    redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+      return baseUrl;
+    },
+  },
+  pages: {
+    signIn: '/signin',
+    error: '/signin',
   },
   events: {
     createUser: async ({ user }) => {
