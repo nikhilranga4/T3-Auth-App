@@ -11,6 +11,7 @@ import { UserCircle, LogOut, Edit2 } from "lucide-react";
 import Image from "next/image";
 
 interface UserDetails {
+  name?: string;
   fullName?: string;
   fbLink?: string;
   linkedinLink?: string;
@@ -46,7 +47,11 @@ export default function DashboardPage() {
         throw new Error("Failed to fetch user details");
       }
       const data = (await response.json()) as UserDetails;
-      setUserDetails(data);
+      // Map the name field to fullName for consistency
+      setUserDetails({
+        ...data,
+        fullName: data.name || data.fullName,
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -78,6 +83,8 @@ export default function DashboardPage() {
   const handleUpdateDetails = async (updatedData: FormattedUserDetails) => {
     setUserDetails({
       ...updatedData,
+      name: updatedData.fullName, // Update both name and fullName
+      fullName: updatedData.fullName,
       dateOfBirth: updatedData.dateOfBirth?.toISOString(),
     });
     setIsEditing(false);
@@ -106,6 +113,8 @@ export default function DashboardPage() {
   }
 
   const displayImage = userDetails?.image ?? session?.user?.image;
+  const displayName = userDetails?.fullName || userDetails?.name || session?.user?.name || "";
+  const hasProfileData = displayName || userDetails?.gender || userDetails?.dateOfBirth;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -129,7 +138,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {userDetails?.fullName ?? session?.user?.name ?? "My Profile"}
+                {displayName ?? "My Profile"}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Manage your personal information and preferences
@@ -157,7 +166,7 @@ export default function DashboardPage() {
                   className="flex items-center space-x-2"
                 >
                   <Edit2 className="h-4 w-4" />
-                  <span>{userDetails?.fullName ? "Edit Profile" : "Complete Profile"}</span>
+                  <span>{hasProfileData ? "Edit Profile" : "Complete Profile"}</span>
                 </Button>
               )}
             </div>
@@ -167,6 +176,7 @@ export default function DashboardPage() {
               <UserDetailsForm
                 initialData={{
                   ...userDetails,
+                  fullName: displayName || "",
                   dateOfBirth: userDetails?.dateOfBirth
                     ? new Date(userDetails.dateOfBirth)
                     : undefined,
@@ -176,7 +186,7 @@ export default function DashboardPage() {
               />
             ) : (
               <div className="space-y-6">
-                {!userDetails?.fullName ? (
+                {!hasProfileData ? (
                   <div className="text-center py-8">
                     <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
                       {displayImage ? (
@@ -199,17 +209,17 @@ export default function DashboardPage() {
                   <div className="grid gap-6 md:grid-cols-2">
                     <div className="space-y-1">
                       <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                      <p className="text-base">{userDetails.fullName}</p>
+                      <p className="text-base">{displayName}</p>
                     </div>
 
-                    {userDetails.gender && (
+                    {userDetails?.gender && (
                       <div className="space-y-1">
                         <label className="text-sm font-medium text-muted-foreground">Gender</label>
                         <p className="text-base capitalize">{userDetails.gender}</p>
                       </div>
                     )}
 
-                    {userDetails.dateOfBirth && (
+                    {userDetails?.dateOfBirth && (
                       <div className="space-y-1">
                         <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
                         <p className="text-base">
@@ -222,7 +232,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {userDetails.fbLink && (
+                    {userDetails?.fbLink && (
                       <div className="space-y-1 md:col-span-2">
                         <label className="text-sm font-medium text-muted-foreground">Facebook Profile</label>
                         <p className="text-base">
@@ -238,7 +248,7 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {userDetails.linkedinLink && (
+                    {userDetails?.linkedinLink && (
                       <div className="space-y-1 md:col-span-2">
                         <label className="text-sm font-medium text-muted-foreground">LinkedIn Profile</label>
                         <p className="text-base">

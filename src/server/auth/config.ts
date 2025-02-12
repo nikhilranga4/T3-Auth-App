@@ -24,21 +24,11 @@ export const authConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          prompt: "select_account",
-          access_type: "online",
-          response_type: "token id_token"
+          access_type: "offline",
+          response_type: "code",
+          prompt: "select_account"
         }
-      },
-      allowDangerousEmailAccountLinking: true,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          emailVerified: profile.email_verified
-        };
-      },
+      }
     }),
     CredentialsProvider({
       name: "Credentials",
@@ -88,39 +78,51 @@ export const authConfig = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 24 * 60 * 60, // 24 hours
   },
   debug: process.env.NODE_ENV === 'development',
   adapter: PrismaAdapter(db),
   callbacks: {
-    signIn: async ({ user, account }) => {
-      if (account?.provider === "google") {
-        const existingUser = await db.user.findUnique({
-          where: { email: user.email! },
-        });
-        
-        if (existingUser) {
-          // Update existing user with latest Google profile info
-          await db.user.update({
-            where: { id: existingUser.id },
-            data: {
-              name: user.name,
-              image: user.image,
-              emailVerified: new Date(),
-            },
+    async signIn({ user, account, profile }) {
+      try {
+        if (account?.provider === "google") {
+          const existingUser = await db.user.findUnique({
+            where: { email: user.email! },
           });
+
+          if (existingUser) {
+            // Keep the existing image if it's a base64 image
+            const image = existingUser.image?.startsWith('data:image') 
+              ? existingUser.image 
+              : profile?.picture;
+
+            await db.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: profile?.name,
+                image,
+                emailVerified: new Date(),
+              },
+            });
+          }
         }
+        return true;
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return true; // Still allow sign in even if update fails
       }
-      return true;
     },
     jwt: async ({ token, user, account }) => {
       if (user) {
         token.id = user.id;
         token.email = user.email;
+        // Preserve base64 images
+        if (user.image?.startsWith('data:image')) {
+          token.picture = user.image;
+        }
       }
       if (account) {
         token.accessToken = account.access_token;
-        token.provider = account.provider;
       }
       return token;
     },
@@ -128,6 +130,10 @@ export const authConfig = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
+        // Use the preserved base64 image if available
+        if (token.picture) {
+          session.user.image = token.picture as string;
+        }
       }
       return session;
     },

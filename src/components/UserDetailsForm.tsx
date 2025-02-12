@@ -49,7 +49,7 @@ interface UploadResponse {
 }
 
 interface ErrorResponse {
-  message: string;
+  error: string;
 }
 
 export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetailsFormProps) {
@@ -58,7 +58,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
   const [linkedinLink, setLinkedinLink] = useState(initialData?.linkedinLink ?? "");
   const [gender, setGender] = useState(initialData?.gender ?? "");
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>(
-    initialData?.dateOfBirth
+    initialData?.dateOfBirth ? new Date(initialData.dateOfBirth) : undefined
   );
   const [image, setImage] = useState<string | undefined>(initialData?.image);
   const [loading, setLoading] = useState(false);
@@ -101,29 +101,22 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
 
       if (!response.ok) {
         const error = await response.json() as ErrorResponse;
-        throw new Error(error.message ?? 'Failed to upload image');
+        throw new Error(error.error ?? 'Failed to upload image');
       }
 
-      const data = await response.json() as UploadResponse;
+      const data = await response.json();
       setImage(data.url);
       toast({
         title: "Success",
         description: "Image uploaded successfully",
       });
     } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to upload image",
-          variant: "destructive",
-        });
-      }
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to upload image",
+        variant: "destructive",
+      });
     } finally {
       setUploadingImage(false);
     }
@@ -139,17 +132,18 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           fullName,
-          fbLink,
-          linkedinLink,
-          gender,
-          dateOfBirth: dateOfBirth?.toISOString(),
-          image,
+          fbLink: fbLink || null,
+          linkedinLink: linkedinLink || null,
+          gender: gender || null,
+          dateOfBirth: dateOfBirth?.toISOString() || null,
+          image: image || null,
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json() as ErrorResponse;
-        throw new Error(error.message ?? "Failed to update user details");
+        throw new Error(data.error ?? "Failed to update user details");
       }
 
       toast({
@@ -170,19 +164,12 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
 
       router.refresh();
     } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-      }
+      console.error('Update error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

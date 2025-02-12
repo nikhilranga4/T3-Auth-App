@@ -11,14 +11,14 @@ const userDetailsSchema = z.object({
   linkedinLink: z.string().url().optional().nullable(),
   gender: z.string().optional(),
   dateOfBirth: z.string().optional().nullable(),
-  image: z.string().url().optional().nullable(),
+  image: z.string().optional().nullable(),
 });
 
 export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await db.user.findUnique({
@@ -34,13 +34,16 @@ export async function GET(req: Request) {
     });
 
     if (!user) {
-      return new NextResponse("User not found", { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     return NextResponse.json(user);
   } catch (error) {
     console.error("Error fetching user details:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -48,7 +51,7 @@ export async function POST(req: Request) {
   try {
     const session = await auth();
     if (!session?.user) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const data = await req.json();
@@ -56,7 +59,10 @@ export async function POST(req: Request) {
 
     // Validate required fields
     if (!fullName) {
-      return new NextResponse("Full name is required", { status: 400 });
+      return NextResponse.json(
+        { error: "Full name is required" },
+        { status: 400 }
+      );
     }
 
     // Update user details in database
@@ -64,17 +70,20 @@ export async function POST(req: Request) {
       where: { id: session.user.id },
       data: {
         name: fullName,
-        fbLink,
-        linkedinLink,
-        gender,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
-        image: image || undefined, // Store base64 image string directly
+        fbLink: fbLink || null,
+        linkedinLink: linkedinLink || null,
+        gender: gender || null,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        image: image || null,
       },
     });
 
     return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user details:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 } 
