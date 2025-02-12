@@ -23,9 +23,16 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     VERCEL_URL: z.string().optional(),
-    CLOUDINARY_CLOUD_NAME: z.string(),
-    CLOUDINARY_API_KEY: z.string(),
-    CLOUDINARY_API_SECRET: z.string(),
+    // Make Cloudinary variables required in production, optional in development
+    CLOUDINARY_CLOUD_NAME: process.env.NODE_ENV === "production"
+      ? z.string().min(1, "CLOUDINARY_CLOUD_NAME is required in production")
+      : z.string().optional(),
+    CLOUDINARY_API_KEY: process.env.NODE_ENV === "production"
+      ? z.string().min(1, "CLOUDINARY_API_KEY is required in production")
+      : z.string().optional(),
+    CLOUDINARY_API_SECRET: process.env.NODE_ENV === "production"
+      ? z.string().min(1, "CLOUDINARY_API_SECRET is required in production")
+      : z.string().optional(),
   },
   client: {},
   runtimeEnv: {
