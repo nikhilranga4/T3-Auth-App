@@ -33,10 +33,6 @@ interface SignupResponse {
 	userId?: string;
 }
 
-interface ErrorResponse {
-	message: string;
-}
-
 export default function SignUpPage() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");

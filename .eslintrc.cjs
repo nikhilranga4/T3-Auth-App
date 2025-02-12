@@ -36,13 +36,15 @@ const config = {
           "attributes": false
         }
       }
-    ],
-    "@typescript-eslint/no-unsafe-assignment": "off",
-    "@typescript-eslint/no-unsafe-member-access": "off"
+    ]
   },
   "overrides": [
     {
       "files": ["src/env.js"],
+      "parser": "espree",
+      "parserOptions": {
+        "ecmaVersion": 2020
+      },
       "rules": {
         "@typescript-eslint/no-var-requires": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
