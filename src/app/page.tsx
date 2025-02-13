@@ -1,46 +1,125 @@
+"use client";
+
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Link from "next/link";
+import { motion } from "framer-motion";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-center text-3xl font-bold">Welcome to Auth App</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center mb-8">
-            <p className="text-muted-foreground">
-              A secure authentication system with profile management and social login options.
-            </p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8 relative overflow-hidden">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md relative z-10"
+      >
+        <motion.div 
+          variants={itemVariants}
+          className="text-center mb-12"
+        >
+          <div className="relative inline-block mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full blur-xl opacity-20 animate-pulse" />
+            <h1 className="relative text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+              Welcome to T3 Authentication
+            </h1>
           </div>
-          <div className="space-y-4">
-            <Link href="/signin" className="w-full block">
-              <Button className="w-full" size="lg">
-                Sign In
-              </Button>
-            </Link>
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  or
-                </span>
-              </div>
+          <motion.p
+            variants={itemVariants}
+            className="text-base sm:text-lg text-gray-600 max-w-sm mx-auto leading-relaxed"
+          >
+            A secure authentication system with advanced profile management
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          variants={itemVariants}
+          className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
+            <div className="p-6 sm:p-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">New Here?</h2>
+              <p className="text-sm text-gray-600 mb-6">Create an account to get started with personalized profile management.</p>
+              <Link href="/signup" className="block">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button
+                    className="w-full h-11 text-base font-medium bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white shadow-lg shadow-blue-500/20 transition-all duration-300"
+                  >
+                    Create Account
+                  </Button>
+                </motion.div>
+              </Link>
             </div>
-            <Link href="/signup" className="w-full block">
-              <Button variant="outline" className="w-full" size="lg">
-                Create Account
-              </Button>
-            </Link>
+
+            <div className="p-6 sm:p-8 bg-gray-50/50">
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">Welcome Back</h2>
+              <p className="text-sm text-gray-600 mb-6">Sign in to your account to continue where you left off. Update your profile</p>
+              <Link href="/signin" className="block">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <Button
+                    variant="outline"
+                    className="w-full top h-11 text-base font-medium border-2 border-blue-100 text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition-all duration-300"
+                  >
+                    Sign In
+                  </Button>
+                </motion.div>
+              </Link>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </motion.div>
+
+        <motion.div
+          variants={itemVariants}
+          className="mt-6 text-center"
+        >
+          <p className="text-sm text-gray-500 font-medium">
+            Secure and seamless authentication experience
+          </p>
+        </motion.div>
+      </motion.div>
+
+      {/* Enhanced background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: 0.3, rotate: 12 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-blue-50 to-transparent"
+        />
+        <motion.div
+          initial={{ opacity: 0, rotate: 0 }}
+          animate={{ opacity: 0.3, rotate: -12 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-indigo-50 to-transparent"
+        />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          transition={{ duration: 2 }}
+          className="absolute inset-0 bg-gradient-to-br from-blue-100 via-transparent to-indigo-100"
+        />
+      </div>
     </div>
   );
 }

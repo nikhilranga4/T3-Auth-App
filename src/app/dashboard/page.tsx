@@ -7,8 +7,10 @@ import { Button } from "~/components/ui/button";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "~/components/ui/use-toast";
-import { UserCircle, LogOut, Edit2 } from "lucide-react";
+import { UserCircle, LogOut, Edit2, Settings } from "lucide-react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 interface UserDetails {
   name?: string;
@@ -47,7 +49,6 @@ export default function DashboardPage() {
         throw new Error("Failed to fetch user details");
       }
       const data = (await response.json()) as UserDetails;
-      // Map the name field to fullName for consistency
       setUserDetails({
         ...data,
         fullName: data.name || data.fullName,
@@ -83,13 +84,12 @@ export default function DashboardPage() {
   const handleUpdateDetails = async (updatedData: FormattedUserDetails) => {
     setUserDetails({
       ...updatedData,
-      name: updatedData.fullName, // Update both name and fullName
+      name: updatedData.fullName,
       fullName: updatedData.fullName,
       dateOfBirth: updatedData.dateOfBirth?.toISOString(),
     });
     setIsEditing(false);
 
-    // Update session with new image if it changed
     if (updatedData.image !== session?.user?.image) {
       await updateSession({
         ...session,
@@ -99,15 +99,24 @@ export default function DashboardPage() {
         },
       });
     }
+
+    toast({
+      description: "Profile updated successfully",
+      className: "bg-green-500 text-white",
+    });
   };
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-center">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-sm text-muted-foreground">Loading your profile...</p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -117,158 +126,294 @@ export default function DashboardPage() {
   const hasProfileData = displayName || userDetails?.gender || userDetails?.dateOfBirth;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
           <div className="flex items-center space-x-4">
-            <div className="relative w-16 h-16">
-              {displayImage ? (
-                <Image
-                  src={displayImage}
-                  alt="Profile"
-                  width={64}
-                  height={64}
-                  className="rounded-full object-cover w-full h-full"
-                />
-              ) : (
-                <div className="bg-primary/10 p-3 rounded-full w-full h-full flex items-center justify-center">
-                  <UserCircle className="h-8 w-8 text-primary" />
-                </div>
-              )}
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {displayName ?? "My Profile"}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Manage your personal information and preferences
-              </p>
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            onClick={handleSignOut}
-            className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
-          </Button>
-        </div>
-
-        <Card className="shadow-lg border-0">
-          <CardHeader className="border-b bg-card px-6">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-semibold">Profile Details</CardTitle>
-              {!isEditing && (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="ghost"
-                  className="flex items-center space-x-2"
-                >
-                  <Edit2 className="h-4 w-4" />
-                  <span>{hasProfileData ? "Edit Profile" : "Complete Profile"}</span>
-                </Button>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            {isEditing ? (
-              <UserDetailsForm
-                initialData={{
-                  ...userDetails,
-                  fullName: displayName || "",
-                  dateOfBirth: userDetails?.dateOfBirth
-                    ? new Date(userDetails.dateOfBirth)
-                    : undefined,
-                }}
-                onUpdate={handleUpdateDetails}
-                onCancel={() => setIsEditing(false)}
-              />
-            ) : (
-              <div className="space-y-6">
-                {!hasProfileData ? (
-                  <div className="text-center py-8">
-                    <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {displayImage ? (
-                        <Image
-                          src={displayImage}
-                          alt="Profile"
-                          width={96}
-                          height={96}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <UserCircle className="h-12 w-12 text-muted-foreground/30" />
-                      )}
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      Your profile is incomplete. Add your details to get started.
-                    </p>
-                  </div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative"
+            >
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-lg">
+                {displayImage ? (
+                  <Image
+                    src={displayImage}
+                    alt="Profile"
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-sm font-medium text-muted-foreground">Full Name</label>
-                      <p className="text-base">{displayName}</p>
-                    </div>
-
-                    {userDetails?.gender && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-muted-foreground">Gender</label>
-                        <p className="text-base capitalize">{userDetails.gender}</p>
-                      </div>
-                    )}
-
-                    {userDetails?.dateOfBirth && (
-                      <div className="space-y-1">
-                        <label className="text-sm font-medium text-muted-foreground">Date of Birth</label>
-                        <p className="text-base">
-                          {new Date(userDetails.dateOfBirth).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                    )}
-
-                    {userDetails?.fbLink && (
-                      <div className="space-y-1 md:col-span-2">
-                        <label className="text-sm font-medium text-muted-foreground">Facebook Profile</label>
-                        <p className="text-base">
-                          <a
-                            href={userDetails.fbLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {userDetails.fbLink}
-                          </a>
-                        </p>
-                      </div>
-                    )}
-
-                    {userDetails?.linkedinLink && (
-                      <div className="space-y-1 md:col-span-2">
-                        <label className="text-sm font-medium text-muted-foreground">LinkedIn Profile</label>
-                        <p className="text-base">
-                          <a
-                            href={userDetails.linkedinLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline"
-                          >
-                            {userDetails.linkedinLink}
-                          </a>
-                        </p>
-                      </div>
-                    )}
+                  <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                    <UserCircle className="h-8 w-8 text-primary" />
                   </div>
                 )}
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </motion.div>
+            <div>
+              <motion.h1
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-2xl font-bold text-gray-900"
+              >
+                {displayName || "Welcome"}
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-sm text-muted-foreground"
+              >
+                Manage your profile and preferences
+              </motion.p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              variant="outline"
+              onClick={handleSignOut}
+              className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
+            </Button>
+          </div>
+        </motion.div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isEditing ? "edit" : "view"}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="border-0 shadow-xl">
+              <CardHeader className="border-b bg-card px-6">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+                    {isEditing ? "Edit Profile" : "Profile Details"}
+                  </CardTitle>
+                  {!isEditing && (
+                    <Button
+                      onClick={() => setIsEditing(true)}
+                      variant="ghost"
+                      className="flex items-center space-x-2 hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                      <span>{hasProfileData ? "Edit Profile" : "Complete Profile"}</span>
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="p-6">
+                {isEditing ? (
+                  <UserDetailsForm
+                    initialData={{
+                      ...userDetails,
+                      fullName: displayName,
+                      dateOfBirth: userDetails?.dateOfBirth
+                        ? new Date(userDetails.dateOfBirth)
+                        : undefined,
+                    }}
+                    onUpdate={handleUpdateDetails}
+                    onCancel={() => setIsEditing(false)}
+                  />
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="space-y-6"
+                  >
+                    {!hasProfileData ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="text-center py-8"
+                      >
+                        <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                          {displayImage ? (
+                            <Image
+                              src={displayImage}
+                              alt="Profile"
+                              width={96}
+                              height={96}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <UserCircle className="h-12 w-12 text-muted-foreground/30" />
+                          )}
+                        </div>
+                        <p className="text-muted-foreground text-sm">
+                          Your profile is incomplete. Add your details to get started.
+                        </p>
+                        <Button
+                          onClick={() => setIsEditing(true)}
+                          className="mt-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
+                        >
+                          Complete Profile
+                        </Button>
+                      </motion.div>
+                    ) : (
+                      <div className="grid gap-8">
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100"
+                        >
+                          <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                            <Settings className="h-5 w-5 text-blue-500" />
+                          </div>
+                          
+                          <div className="space-y-6">
+                            <motion.div
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 0.1 }}
+                              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                            >
+                              <div className="min-w-[120px]">
+                                <label className="text-sm font-medium text-gray-500">Full Name</label>
+                              </div>
+                              <p className="text-base font-medium text-gray-900">{displayName}</p>
+                            </motion.div>
+
+                            {userDetails?.gender && (
+                              <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                              >
+                                <div className="min-w-[120px]">
+                                  <label className="text-sm font-medium text-gray-500">Gender</label>
+                                </div>
+                                <p className="text-base font-medium text-gray-900 capitalize">{userDetails.gender}</p>
+                              </motion.div>
+                            )}
+
+                            {userDetails?.dateOfBirth && (
+                              <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.3 }}
+                                className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                              >
+                                <div className="min-w-[120px]">
+                                  <label className="text-sm font-medium text-gray-500">Birthday</label>
+                                </div>
+                                <p className="text-base font-medium text-gray-900">
+                                  {new Date(userDetails.dateOfBirth).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  })}
+                                </p>
+                              </motion.div>
+                            )}
+                          </div>
+                        </motion.div>
+
+                        {userDetails?.fbLink && (
+                          <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="p-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
+                          >
+                            <div className="flex items-center justify-between mb-6">
+                              <h3 className="text-lg font-semibold text-gray-900">Social Profiles</h3>
+                              <div className="flex space-x-3">
+                                {userDetails.fbLink && (
+                                  <motion.a
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    href={userDetails.fbLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                  >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                                    </svg>
+                                  </motion.a>
+                                )}
+                                {userDetails.linkedinLink && (
+                                  <motion.a
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    href={userDetails.linkedinLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                  >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                      <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                                    </svg>
+                                  </motion.a>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-6">
+                              {userDetails.fbLink && (
+                                <motion.div
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.5 }}
+                                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                >
+                                  <div className="min-w-[120px]">
+                                    <label className="text-sm font-medium text-gray-500">Facebook</label>
+                                  </div>
+                                  <a
+                                    href={userDetails.fbLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                  >
+                                    {userDetails.fbLink}
+                                  </a>
+                                </motion.div>
+                              )}
+
+                              {userDetails.linkedinLink && (
+                                <motion.div
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: 0.6 }}
+                                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                >
+                                  <div className="min-w-[120px]">
+                                    <label className="text-sm font-medium text-gray-500">LinkedIn</label>
+                                  </div>
+                                  <a
+                                    href={userDetails.linkedinLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                  >
+                                    {userDetails.linkedinLink}
+                                  </a>
+                                </motion.div>
+                              )}
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

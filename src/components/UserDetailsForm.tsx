@@ -20,9 +20,10 @@ import {
   PopoverTrigger,
 } from "./ui/popover";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Save, X, Upload, Camera } from "lucide-react";
+import { Calendar as CalendarIcon, Save, X, Upload, Camera, Trash2 } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { toast } from "./ui/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface UserDetailsFormProps {
   initialData?: {
@@ -79,7 +80,6 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       return;
     }
 
-    // Check file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Error",
@@ -100,8 +100,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       });
 
       if (!response.ok) {
-        const error = await response.json() as ErrorResponse;
-        throw new Error(error.error ?? 'Failed to upload image');
+        throw new Error('Failed to upload image');
       }
 
       const data = await response.json();
@@ -109,6 +108,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       toast({
         title: "Success",
         description: "Image uploaded successfully",
+        className: "bg-green-500 text-white",
       });
     } catch (error) {
       console.error('Upload error:', error);
@@ -119,6 +119,13 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
       });
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImage(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -146,11 +153,6 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         throw new Error(data.error ?? "Failed to update user details");
       }
 
-      toast({
-        title: "Success",
-        description: "Your details have been updated successfully.",
-      });
-
       if (onUpdate) {
         onUpdate({
           fullName,
@@ -176,10 +178,14 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      <div className="flex justify-center mb-6">
-        <div className="relative">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-center"
+      >
+        <div className="relative group">
+          <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-blue-400 transition-colors duration-300">
             {image ? (
               <Image
                 src={image}
@@ -201,24 +207,42 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             accept="image/*"
             className="hidden"
           />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="absolute bottom-0 right-0 rounded-full p-2"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingImage}
-          >
-            {uploadingImage ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
-            ) : (
-              <Upload className="h-4 w-4" />
+          <div className="absolute -bottom-2 right-0 flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="rounded-full p-2 bg-white hover:bg-blue-50"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImage}
+            >
+              {uploadingImage ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+            </Button>
+            {image && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="rounded-full p-2 bg-white hover:bg-red-50 hover:text-red-500"
+                onClick={handleRemoveImage}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             )}
-          </Button>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid gap-6 md:grid-cols-2"
+      >
         <div className="space-y-2">
           <Label htmlFor="fullName" className="text-sm font-medium text-muted-foreground">
             Full Name
@@ -228,7 +252,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Enter your full name"
-            className="w-full"
+            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
@@ -237,8 +261,8 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
           <Label htmlFor="gender" className="text-sm font-medium text-muted-foreground">
             Gender
           </Label>
-          <Select value={gender} onValueChange={setGender} required>
-            <SelectTrigger className="w-full">
+          <Select value={gender} onValueChange={setGender}>
+            <SelectTrigger className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400">
               <SelectValue placeholder="Select your gender" />
             </SelectTrigger>
             <SelectContent>
@@ -260,7 +284,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             onChange={(e) => setFbLink(e.target.value)}
             placeholder="https://facebook.com/your.profile"
             type="url"
-            className="w-full"
+            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
@@ -274,7 +298,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             onChange={(e) => setLinkedinLink(e.target.value)}
             placeholder="https://linkedin.com/in/your.profile"
             type="url"
-            className="w-full"
+            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
           />
         </div>
 
@@ -287,7 +311,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-start text-left font-normal",
+                  "w-full justify-start text-left font-normal transition-all duration-300 focus:ring-2 focus:ring-blue-400",
                   !dateOfBirth && "text-muted-foreground"
                 )}
               >
@@ -307,15 +331,20 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             </PopoverContent>
           </Popover>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="flex items-center justify-end space-x-4 pt-4 border-t">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-end space-x-4 pt-4 border-t"
+      >
         {onCancel && (
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 hover:bg-red-50 hover:text-red-500 transition-colors duration-300"
             disabled={loading}
           >
             <X className="h-4 w-4" />
@@ -324,13 +353,13 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         )}
         <Button
           type="submit"
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
           disabled={loading || uploadingImage}
         >
           <Save className="h-4 w-4" />
           <span>{loading ? "Saving..." : "Save Changes"}</span>
         </Button>
-      </div>
+      </motion.div>
     </form>
   );
 } 
