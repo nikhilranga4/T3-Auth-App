@@ -3,7 +3,7 @@ import { z } from "zod";
 import { db } from "~/server/db";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import { sendVerificationEmail } from "~/server/resend";
+import { sendVerificationEmail } from "~/server/nodemailer";
 
 export const dynamic = 'force-dynamic';
 
