@@ -12,6 +12,7 @@ import Link from "next/link";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { SocialLoginButton } from "~/components/SocialLoginButton";
+import { PasswordInput } from "~/components/ui/password-input";
 
 const signupSchema = z.object({
 	email: z.string().email("Invalid email address"),
@@ -180,9 +181,8 @@ export default function SignUpPage() {
 								<Label htmlFor="password" className="text-sm font-medium text-gray-700">
 									Password
 								</Label>
-								<Input
+								<PasswordInput
 									id="password"
-									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="Create a password"
@@ -195,9 +195,8 @@ export default function SignUpPage() {
 								<Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
 									Confirm Password
 								</Label>
-								<Input
+								<PasswordInput
 									id="confirmPassword"
-									type="password"
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									placeholder="Confirm your password"

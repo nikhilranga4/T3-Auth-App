@@ -11,6 +11,7 @@ import { toast } from "~/components/ui/use-toast";
 import Link from "next/link";
 import { SocialLoginButton } from "~/components/SocialLoginButton";
 import { motion } from "framer-motion";
+import { PasswordInput } from "~/components/ui/password-input";
 
 export default function SignInPage() {
 	const [email, setEmail] = useState("");
@@ -189,9 +190,8 @@ export default function SignInPage() {
 								<Label htmlFor="password" className="text-sm font-medium text-gray-700">
 									Password
 								</Label>
-								<Input
+								<PasswordInput
 									id="password"
-									type="password"
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="Enter your password"
