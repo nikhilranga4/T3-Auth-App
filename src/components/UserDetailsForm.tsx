@@ -185,7 +185,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         className="flex justify-center"
       >
         <div className="relative group">
-          <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-blue-400 transition-colors duration-300">
+          <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-blue-400 transition-colors duration-300">
             {image ? (
               <Image
                 src={image}
@@ -196,7 +196,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Camera className="h-12 w-12 text-gray-400" />
+                <Camera className="h-8 sm:h-12 w-8 sm:w-12 text-gray-400" />
               </div>
             )}
           </div>
@@ -212,14 +212,14 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full p-2 bg-white hover:bg-blue-50"
+              className="rounded-full p-1.5 sm:p-2 bg-white hover:bg-blue-50"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingImage}
             >
               {uploadingImage ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+                <div className="animate-spin rounded-full h-4 sm:h-5 w-4 sm:w-5 border-b-2 border-primary" />
               ) : (
-                <Upload className="h-4 w-4" />
+                <Upload className="h-3 sm:h-4 w-3 sm:w-4" />
               )}
             </Button>
             {image && (
@@ -227,10 +227,10 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
                 type="button"
                 variant="outline"
                 size="sm"
-                className="rounded-full p-2 bg-white hover:bg-red-50 hover:text-red-500"
+                className="rounded-full p-1.5 sm:p-2 bg-white hover:bg-red-50 hover:text-red-500"
                 onClick={handleRemoveImage}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3 sm:h-4 w-3 sm:w-4" />
               </Button>
             )}
           </div>
@@ -241,65 +241,69 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid gap-6 md:grid-cols-2"
+        className="grid gap-4 sm:gap-6"
       >
-        <div className="space-y-2">
-          <Label htmlFor="fullName" className="text-sm font-medium text-muted-foreground">
-            Full Name
-          </Label>
-          <Input
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            placeholder="Enter your full name"
-            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
-            required
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName" className="text-sm font-medium text-muted-foreground">
+              Full Name
+            </Label>
+            <Input
+              id="fullName"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Enter your full name"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="gender" className="text-sm font-medium text-muted-foreground">
+              Gender
+            </Label>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400">
+                <SelectValue placeholder="Select your gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="gender" className="text-sm font-medium text-muted-foreground">
-            Gender
-          </Label>
-          <Select value={gender} onValueChange={setGender}>
-            <SelectTrigger className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400">
-              <SelectValue placeholder="Select your gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-              <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="fbLink" className="text-sm font-medium text-muted-foreground">
+              Facebook Profile Link
+            </Label>
+            <Input
+              id="fbLink"
+              value={fbLink}
+              onChange={(e) => setFbLink(e.target.value)}
+              placeholder="https://facebook.com/your.profile"
+              type="url"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="fbLink" className="text-sm font-medium text-muted-foreground">
-            Facebook Profile Link
-          </Label>
-          <Input
-            id="fbLink"
-            value={fbLink}
-            onChange={(e) => setFbLink(e.target.value)}
-            placeholder="https://facebook.com/your.profile"
-            type="url"
-            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="linkedinLink" className="text-sm font-medium text-muted-foreground">
-            LinkedIn Profile Link
-          </Label>
-          <Input
-            id="linkedinLink"
-            value={linkedinLink}
-            onChange={(e) => setLinkedinLink(e.target.value)}
-            placeholder="https://linkedin.com/in/your.profile"
-            type="url"
-            className="w-full transition-all duration-300 focus:ring-2 focus:ring-blue-400"
-          />
+          <div className="space-y-2">
+            <Label htmlFor="linkedinLink" className="text-sm font-medium text-muted-foreground">
+              LinkedIn Profile Link
+            </Label>
+            <Input
+              id="linkedinLink"
+              value={linkedinLink}
+              onChange={(e) => setLinkedinLink(e.target.value)}
+              placeholder="https://linkedin.com/in/your.profile"
+              type="url"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -311,7 +315,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full justify-start text-left font-normal transition-all duration-300 focus:ring-2 focus:ring-blue-400",
+                  "w-full h-9 sm:h-10 justify-start text-left font-normal transition-all duration-300 focus:ring-2 focus:ring-blue-400",
                   !dateOfBirth && "text-muted-foreground"
                 )}
               >
@@ -327,6 +331,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               <Calendar
                 selected={dateOfBirth}
                 onSelect={setDateOfBirth}
+                className="rounded-lg border shadow-lg"
               />
             </PopoverContent>
           </Popover>
@@ -337,14 +342,14 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex items-center justify-end space-x-4 pt-4 border-t"
+        className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4 border-t"
       >
         {onCancel && (
           <Button
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="flex items-center space-x-2 hover:bg-red-50 hover:text-red-500 transition-colors duration-300"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 hover:bg-red-50 hover:text-red-500 transition-colors duration-300"
             disabled={loading}
           >
             <X className="h-4 w-4" />
@@ -353,7 +358,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         )}
         <Button
           type="submit"
-          className="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
           disabled={loading || uploadingImage}
         >
           <Save className="h-4 w-4" />

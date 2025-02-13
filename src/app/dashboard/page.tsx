@@ -127,19 +127,19 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
         >
           <div className="flex items-center space-x-4">
             <motion.div
               whileHover={{ scale: 1.05 }}
               className="relative"
             >
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-lg">
+              <div className="w-12 sm:w-16 h-12 sm:h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-lg">
                 {displayImage ? (
                   <Image
                     src={displayImage}
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                    <UserCircle className="h-8 w-8 text-primary" />
+                    <UserCircle className="h-6 sm:h-8 w-6 sm:w-8 text-primary" />
                   </div>
                 )}
               </div>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
               <motion.h1
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-2xl font-bold text-gray-900"
+                className="text-xl sm:text-2xl font-bold text-gray-900"
               >
                 {displayName || "Welcome"}
               </motion.h1>
@@ -173,11 +173,11 @@ export default function DashboardPage() {
               </motion.p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center">
             <Button
               variant="outline"
               onClick={handleSignOut}
-              className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive transition-colors text-sm sm:text-base px-3 sm:px-4"
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
@@ -192,18 +192,19 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3 }}
+            className="w-full"
           >
-            <Card className="border-0 shadow-xl">
-              <CardHeader className="border-b bg-card px-6">
+            <Card className="border-0 shadow-xl overflow-hidden">
+              <CardHeader className="border-b bg-card px-4 sm:px-6">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+                  <CardTitle className="text-lg sm:text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
                     {isEditing ? "Edit Profile" : "Profile Details"}
                   </CardTitle>
                   {!isEditing && (
                     <Button
                       onClick={() => setIsEditing(true)}
                       variant="ghost"
-                      className="flex items-center space-x-2 hover:bg-primary/10 hover:text-primary transition-colors"
+                      className="flex items-center space-x-2 hover:bg-primary/10 hover:text-primary transition-colors text-sm sm:text-base"
                     >
                       <Edit2 className="h-4 w-4" />
                       <span>{hasProfileData ? "Edit Profile" : "Complete Profile"}</span>
@@ -211,7 +212,7 @@ export default function DashboardPage() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 {isEditing ? (
                   <UserDetailsForm
                     initialData={{
@@ -236,7 +237,7 @@ export default function DashboardPage() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-center py-8"
                       >
-                        <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
                           {displayImage ? (
                             <Image
                               src={displayImage}
@@ -246,7 +247,7 @@ export default function DashboardPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <UserCircle className="h-12 w-12 text-muted-foreground/30" />
+                            <UserCircle className="h-10 sm:h-12 w-10 sm:w-12 text-muted-foreground/30" />
                           )}
                         </div>
                         <p className="text-muted-foreground text-sm">
@@ -260,28 +261,28 @@ export default function DashboardPage() {
                         </Button>
                       </motion.div>
                     ) : (
-                      <div className="grid gap-8">
+                      <div className="grid gap-6">
                         <motion.div
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="p-6 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100"
+                          className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100"
                         >
-                          <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
-                            <Settings className="h-5 w-5 text-blue-500" />
+                          <div className="flex items-center justify-between mb-4 sm:mb-6">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Personal Information</h3>
+                            <Settings className="h-4 sm:h-5 w-4 sm:w-5 text-blue-500" />
                           </div>
                           
-                          <div className="space-y-6">
+                          <div className="space-y-4">
                             <motion.div
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: 0.1 }}
-                              className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                              className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
                             >
                               <div className="min-w-[120px]">
                                 <label className="text-sm font-medium text-gray-500">Full Name</label>
                               </div>
-                              <p className="text-base font-medium text-gray-900">{displayName}</p>
+                              <p className="text-sm sm:text-base font-medium text-gray-900">{displayName}</p>
                             </motion.div>
 
                             {userDetails?.gender && (
@@ -289,12 +290,12 @@ export default function DashboardPage() {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.2 }}
-                                className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
                               >
                                 <div className="min-w-[120px]">
                                   <label className="text-sm font-medium text-gray-500">Gender</label>
                                 </div>
-                                <p className="text-base font-medium text-gray-900 capitalize">{userDetails.gender}</p>
+                                <p className="text-sm sm:text-base font-medium text-gray-900 capitalize">{userDetails.gender}</p>
                               </motion.div>
                             )}
 
@@ -303,12 +304,12 @@ export default function DashboardPage() {
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.3 }}
-                                className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
                               >
                                 <div className="min-w-[120px]">
                                   <label className="text-sm font-medium text-gray-500">Birthday</label>
                                 </div>
-                                <p className="text-base font-medium text-gray-900">
+                                <p className="text-sm sm:text-base font-medium text-gray-900">
                                   {new Date(userDetails.dateOfBirth).toLocaleDateString('en-US', {
                                     year: 'numeric',
                                     month: 'long',
@@ -320,15 +321,15 @@ export default function DashboardPage() {
                           </div>
                         </motion.div>
 
-                        {userDetails?.fbLink && (
+                        {(userDetails?.fbLink || userDetails?.linkedinLink) && (
                           <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="p-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
+                            className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
                           >
-                            <div className="flex items-center justify-between mb-6">
-                              <h3 className="text-lg font-semibold text-gray-900">Social Profiles</h3>
+                            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Social Profiles</h3>
                               <div className="flex space-x-3">
                                 {userDetails.fbLink && (
                                   <motion.a
@@ -339,7 +340,7 @@ export default function DashboardPage() {
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                                   >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 sm:w-5 h-4 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                                       <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
                                     </svg>
                                   </motion.a>
@@ -353,7 +354,7 @@ export default function DashboardPage() {
                                     rel="noopener noreferrer"
                                     className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                                   >
-                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-4 sm:w-5 h-4 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
                                       <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
                                     </svg>
                                   </motion.a>
@@ -361,13 +362,13 @@ export default function DashboardPage() {
                               </div>
                             </div>
                             
-                            <div className="space-y-6">
+                            <div className="space-y-4">
                               {userDetails.fbLink && (
                                 <motion.div
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: 0.5 }}
-                                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                  className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
                                 >
                                   <div className="min-w-[120px]">
                                     <label className="text-sm font-medium text-gray-500">Facebook</label>
@@ -376,7 +377,7 @@ export default function DashboardPage() {
                                     href={userDetails.fbLink}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                    className="text-sm sm:text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
                                   >
                                     {userDetails.fbLink}
                                   </a>
@@ -388,7 +389,7 @@ export default function DashboardPage() {
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: 0.6 }}
-                                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
+                                  className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
                                 >
                                   <div className="min-w-[120px]">
                                     <label className="text-sm font-medium text-gray-500">LinkedIn</label>
@@ -397,7 +398,7 @@ export default function DashboardPage() {
                                     href={userDetails.linkedinLink}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+                                    className="text-sm sm:text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
                                   >
                                     {userDetails.linkedinLink}
                                   </a>
