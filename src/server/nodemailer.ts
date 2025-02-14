@@ -111,109 +111,79 @@ export async function sendWelcomeEmail(user: { email: string; name?: string | nu
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           <style>
-            body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              line-height: 1.6;
-              margin: 0;
-              padding: 0;
-              background-color: #f8f8f8;
-            }
-            .email-container {
-              max-width: 600px;
-              margin: 40px auto;
-              background: #ffffff;
-              border-radius: 8px;
-              overflow: hidden;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .header {
-              background: #000000;
-              padding: 40px 20px;
-              text-align: center;
-              border-radius: 8px 8px 0 0;
-            }
-            .header h1 {
-              color: #ffffff;
-              margin: 0;
-              font-size: 28px;
-              font-weight: 700;
-              letter-spacing: -0.025em;
-            }
-            .content {
-              padding: 40px 30px;
-              color: #000000;
-            }
-            .welcome-message {
-              font-size: 18px;
-              font-weight: 600;
-              color: #000000;
-              margin-bottom: 24px;
-            }
+            ${commonStyles}
             .feature-list {
-              background-color: #f8f8f8;
+              background-color: #F3F4F6;
               padding: 20px;
               border-radius: 8px;
               margin: 20px 0;
-              border: 1px solid #e5e5e5;
             }
             .feature-item {
               display: flex;
               align-items: center;
               margin: 12px 0;
-              color: #000000;
-            }
-            .button {
-              display: inline-block;
-              padding: 14px 28px;
-              background: #000000;
-              color: #ffffff !important;
-              text-decoration: none;
-              border-radius: 8px;
-              font-weight: 600;
-              margin: 24px 0;
-              text-align: center;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-            .footer {
-              text-align: center;
-              margin-top: 32px;
-              color: #666666;
-              font-size: 14px;
+              color: #4B5563;
+              font-family: var(--font-primary);
             }
           </style>
         </head>
-        <body>
+        <body style="margin: 0; padding: 0; background-color: #F3F4F6;">
           <div class="email-container">
             <div class="header">
               <h1>Welcome to Auth App! 🚀</h1>
             </div>
             <div class="content">
               <div class="welcome-message">
-                Hello ${user.name || user.email.split('@')[0]}! 👋
+                Hello ${user.name || 'there'}! 👋
+                <br><br>
+                ${isSocialLogin 
+                  ? `Thank you for joining us using your ${provider} account.` 
+                  : 'Thank you for verifying your email and joining our community!'}
               </div>
-              
-              <p>Thank you for ${isSocialLogin ? `signing up with ${provider}` : 'joining'} Auth App! We're excited to have you on board.</p>
-              
+
+              <p>We're thrilled to have you on board! Here's what you can do with your new account:</p>
+
               <div class="feature-list">
-                <h3 style="margin-top: 0;">What you can do now:</h3>
-                <div class="feature-item">✨ Customize your profile</div>
-                <div class="feature-item">🔒 Manage your account settings</div>
-                <div class="feature-item">🌐 Connect with social accounts</div>
-                <div class="feature-item">📱 Access from any device</div>
+                <div class="feature-item">
+                  🎯 Complete your profile with personal details
+                </div>
+                <div class="feature-item">
+                  🔒 Manage your account security settings
+                </div>
+                <div class="feature-item">
+                  🌐 Connect your social media accounts
+                </div>
+                <div class="feature-item">
+                  ✨ Enjoy a personalized dashboard experience
+                </div>
               </div>
-              
+
               <p>Ready to get started?</p>
-              
-              <a href="${process.env.NEXTAUTH_URL}/dashboard" class="button">
+
+              <a href="${process.env.NEXTAUTH_URL}/dashboard" class="cta-button">
                 Go to Dashboard
               </a>
-              
-              <p style="margin-top: 32px;">
-                If you have any questions or need assistance, feel free to reach out to our support team.
-              </p>
-              
+
+              <p>Need help? Here are some quick links:</p>
+              <ul style="color: #4B5563;">
+                <li>📘 <a href="#" style="color: #3B82F6;">Documentation</a></li>
+                <li>❓ <a href="#" style="color: #3B82F6;">FAQ</a></li>
+                <li>📧 <a href="#" style="color: #3B82F6;">Support</a></li>
+              </ul>
+
+              <div class="social-links">
+                <p>Follow us on social media:</p>
+                <a href="#" class="social-icon">📱</a>
+                <a href="#" class="social-icon">💼</a>
+                <a href="#" class="social-icon">🐦</a>
+              </div>
+
               <div class="footer">
-                <p>Best regards,<br>The Auth App Team</p>
+                <p>This email was sent by Auth App. Please do not reply to this email.</p>
+                <p>© ${new Date().getFullYear()} Auth App. All rights reserved.</p>
+                <p style="color: #9CA3AF;">
+                  Our address: 123 Auth Street, Security City, ST 12345
+                </p>
               </div>
             </div>
           </div>
