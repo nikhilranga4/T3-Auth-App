@@ -6,6 +6,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { sendWelcomeEmail } from "~/server/nodemailer";
 
 declare module "next-auth" {
 	interface Session extends DefaultSession {
@@ -98,6 +99,95 @@ export const { auth, handlers } = NextAuth({
 				session.user.image = token.image as string | null;
 			}
 			return session;
+		},
+		async signIn({ user, account, profile }) {
+			try {
+				if (!user.email) {
+					console.error("No email provided by social login");
+					return false;
+				}
+
+				if (account?.provider === "google" || account?.provider === "github") {
+					const existingUser = await db.user.findUnique({
+						where: { email: user.email },
+						select: {
+							id: true,
+							image: true,
+							emailVerified: true,
+							isVerified: true,
+						}
+					});
+
+					const now = new Date();
+
+					if (existingUser) {
+						// Update existing user
+						const shouldUpdateImage = !existingUser.image?.includes('res.cloudinary.com');
+						
+						await db.user.update({
+							where: { id: existingUser.id },
+							data: {
+								emailVerified: now,
+								isVerified: true,
+								image: shouldUpdateImage ? user.image : existingUser.image,
+							},
+						});
+
+						// Send welcome email only if this is the first time the user is verified
+						if (!existingUser.isVerified) {
+							console.log('Sending welcome email to existing user:', user.email);
+							await sendWelcomeEmail(
+								{
+									email: user.email,
+									name: user.name
+								},
+								true,
+								account.provider
+							);
+						}
+					} else {
+						// Create new user
+						const newUser = await db.user.create({
+							data: {
+								email: user.email,
+								name: user.name,
+								image: user.image,
+								emailVerified: now,
+								isVerified: true,
+							},
+						});
+
+						console.log('Sending welcome email to new user:', user.email);
+						// Send welcome email for new user
+						await sendWelcomeEmail(
+							{
+								email: user.email,
+								name: user.name
+							},
+							true,
+							account.provider
+						);
+					}
+				}
+				return true;
+			} catch (error) {
+				console.error("Error in signIn callback:", error);
+				return false; // Return false on error to prevent sign in
+			}
+		},
+	},
+	events: {
+		async createUser({ user }) {
+			if (user.email) {
+				console.log('Sending welcome email from createUser event:', user.email);
+				await sendWelcomeEmail(
+					{
+						email: user.email,
+						name: user.name ?? user.email.split('@')[0]
+					},
+					false
+				);
+			}
 		},
 	},
 	pages: {
