@@ -8,8 +8,9 @@ export async function GET(request: Request) {
     const token = searchParams.get("token");
 
     if (!token) {
-      return NextResponse.redirect(
-        new URL("/?error=missing-token", request.url)
+      return NextResponse.json(
+        { error: "Verification token is required" },
+        { status: 400 }
       );
     }
 
@@ -20,8 +21,16 @@ export async function GET(request: Request) {
     });
 
     if (!user) {
-      return NextResponse.redirect(
-        new URL("/?error=invalid-token", request.url)
+      return NextResponse.json(
+        { error: "Invalid verification token" },
+        { status: 400 }
+      );
+    }
+
+    if (!user.email) {
+      return NextResponse.json(
+        { error: "User email not found" },
+        { status: 400 }
       );
     }
 
@@ -36,16 +45,17 @@ export async function GET(request: Request) {
     // Send welcome email after successful verification
     await sendWelcomeEmail({
       email: user.email,
-      name: user.name
+      name: user.name ?? user.email.split("@")[0]
     });
 
     return NextResponse.redirect(
-      new URL("/signin?verified=true", request.url)
+      new URL("/?verified=true", request.url)
     );
   } catch (error) {
     console.error("Error verifying email:", error);
-    return NextResponse.redirect(
-      new URL("/?error=verification-failed", request.url)
+    return NextResponse.json(
+      { error: "Failed to verify email" },
+      { status: 500 }
     );
   }
 } 

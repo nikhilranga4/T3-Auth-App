@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "~/server/auth";
+import { auth } from "~/server/auth";
 import { sendWelcomeEmail } from "~/server/nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user) {
       return NextResponse.json(
@@ -16,9 +15,16 @@ export async function POST(req: Request) {
 
     const { provider } = await req.json();
     
+    if (!session.user.email) {
+      return NextResponse.json(
+        { error: "User email not found" },
+        { status: 400 }
+      );
+    }
+
     const success = await sendWelcomeEmail(
       {
-        email: session.user.email!,
+        email: session.user.email,
         name: session.user.name
       },
       true,
