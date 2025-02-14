@@ -24,20 +24,22 @@ export function SocialLoginButton({ provider, onClick, isLoading }: SocialLoginB
       variant="outline"
       onClick={onClick}
       disabled={isLoading}
-      className="w-full flex items-center justify-center gap-2 relative h-11 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-in-out transform hover:scale-[1.02]"
+      className="w-full flex items-center justify-center gap-3 h-11 px-4 hover:bg-accent hover:text-accent-foreground transition-all duration-300 ease-in-out transform hover:scale-[1.02] relative"
     >
       {isLoading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
         <>
-          <Image
-            src={logos[provider]}
-            alt={`${provider} logo`}
-            width={20}
-            height={20}
-            className="absolute left-4"
-          />
-          <span className="ml-4">{text[provider]}</span>
+          <div className="flex-shrink-0">
+            <Image
+              src={logos[provider]}
+              alt={`${provider} logo`}
+              width={20}
+              height={20}
+              className="h-5 w-5"
+            />
+          </div>
+          <span className="flex-1 text-center">{text[provider]}</span>
         </>
       )}
     </Button>

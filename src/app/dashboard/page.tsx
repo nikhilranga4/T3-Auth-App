@@ -7,10 +7,12 @@ import { Button } from "~/components/ui/button";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "~/components/ui/use-toast";
-import { UserCircle, LogOut, Edit2, Settings } from "lucide-react";
+import { UserCircle, LogOut, Edit2, Settings, CheckCircle2, XCircle } from "lucide-react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import type { ReactNode } from "react";
+import { CustomToast } from "~/components/ui/custom-toast";
 
 interface UserDetails {
   name?: string;
@@ -55,9 +57,9 @@ export default function DashboardPage() {
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to load user details",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to load user details"
       });
     } finally {
       setLoading(false);
@@ -70,40 +72,60 @@ export default function DashboardPage() {
 
   const handleSignOut = async () => {
     try {
+      toast({
+        title: "Signing out...",
+        description: "Please wait while we sign you out"
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
       await signOut({ redirect: false });
+
+      toast({
+        title: "Signed out successfully",
+        description: "Thank you for using our service!"
+      });
+
       router.push("/signin");
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to sign out",
         variant: "destructive",
+        title: "Error signing out",
+        description: "Failed to sign out. Please try again."
       });
     }
   };
 
   const handleUpdateDetails = async (updatedData: FormattedUserDetails) => {
-    setUserDetails({
-      ...updatedData,
-      name: updatedData.fullName,
-      fullName: updatedData.fullName,
-      dateOfBirth: updatedData.dateOfBirth?.toISOString(),
-    });
-    setIsEditing(false);
+    try {
+      setUserDetails({
+        ...updatedData,
+        name: updatedData.fullName,
+        fullName: updatedData.fullName,
+        dateOfBirth: updatedData.dateOfBirth?.toISOString(),
+      });
+      setIsEditing(false);
 
-    if (updatedData.image !== session?.user?.image) {
-      await updateSession({
-        ...session,
-        user: {
-          ...session?.user,
-          image: updatedData.image,
-        },
+      if (updatedData.image !== session?.user?.image) {
+        await updateSession({
+          ...session,
+          user: {
+            ...session?.user,
+            image: updatedData.image,
+          },
+        });
+      }
+
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully"
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error updating profile",
+        description: "Failed to update profile. Please try again."
       });
     }
-
-    toast({
-      description: "Profile updated successfully",
-      className: "bg-green-500 text-white",
-    });
   };
 
   if (loading) {

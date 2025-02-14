@@ -35,13 +35,13 @@ export default function HomePage() {
         >
           <div className="relative inline-block mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full blur-xl opacity-20 animate-pulse" />
-            <h1 className="relative text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
+            <h1 className="relative text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 font-heading tracking-tight">
               Welcome to T3 Authentication
             </h1>
           </div>
           <motion.p
             variants={itemVariants}
-            className="text-base sm:text-lg text-gray-600 max-w-sm mx-auto leading-relaxed"
+            className="text-base sm:text-lg text-gray-600 max-w-sm mx-auto leading-relaxed font-sans"
           >
             A secure authentication system with advanced profile management
           </motion.p>

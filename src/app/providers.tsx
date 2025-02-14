@@ -6,7 +6,6 @@ import { type PropsWithChildren } from "react";
 import { Toaster } from "~/components/ui/toaster";
 
 type ProvidersProps = PropsWithChildren<{
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   cookies: string;
 }>;
 
@@ -14,9 +13,13 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <SessionProvider>
       <ThemeProvider
-        attribute="data-theme"
+        attribute="class"
         defaultTheme="system"
         enableSystem
+        disableTransitionOnChange
+        forcedTheme={undefined}
+        storageKey="auth-app-theme"
+        themes={["light", "dark", "system"]}
       >
         {children}
         <Toaster />

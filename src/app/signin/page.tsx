@@ -12,6 +12,7 @@ import Link from "next/link";
 import { SocialLoginButton } from "~/components/SocialLoginButton";
 import { motion } from "framer-motion";
 import { PasswordInput } from "~/components/ui/password-input";
+import { CustomToast } from "~/components/ui/custom-toast";
 
 export default function SignInPage() {
 	const [email, setEmail] = useState("");
@@ -27,26 +28,26 @@ export default function SignInPage() {
 	useEffect(() => {
 		if (isVerified) {
 			toast({
-				description: "Your email has been verified successfully. You can now sign in.",
-				className: "bg-green-500 text-white",
+				title: "Email Verified",
+				description: "Your email has been verified successfully. You can now sign in."
 			});
 		}
 	}, [isVerified]);
 
 	const getErrorMessage = (error: string) => {
 		switch (error) {
+			case "Email does not exist":
+				return "This email is not registered. Please sign up first.";
+			case "Incorrect password":
+				return "The password you entered is incorrect. Please try again.";
 			case "Email and password required":
-				return "Please enter both email and password";
-			case "Invalid credentials":
-				return "Incorrect password. Please try again";
+				return "Please enter both email and password.";
 			case "Please verify your email before signing in":
-				return "Please verify your email before signing in. Check your inbox for the verification link";
-			case "User not found":
-				return "Email does not exist. Please sign up first";
+				return "Please verify your email before signing in. Check your inbox for the verification link.";
 			case "Please sign in with your social account":
-				return "This email is registered with a social account. Please use Google or GitHub to sign in";
+				return "This email is registered with a social account. Please use Google or GitHub to sign in.";
 			default:
-				return "Failed to sign in. Please try again";
+				return "Authentication failed. Please check your credentials and try again.";
 		}
 	};
 
@@ -57,6 +58,11 @@ export default function SignInPage() {
 
 		if (!email || !password) {
 			setError("Please enter both email and password");
+			toast({
+				variant: "destructive",
+				title: "Missing Information",
+				description: "Please enter both email and password"
+			});
 			setLoading(false);
 			return;
 		}
@@ -72,17 +78,16 @@ export default function SignInPage() {
 				const errorMessage = getErrorMessage(result.error);
 				setError(errorMessage);
 				toast({
-					title: "Error",
-					description: errorMessage,
 					variant: "destructive",
+					title: "Authentication Failed",
+					description: errorMessage
 				});
 				return;
 			}
 
 			toast({
-				title: "Success",
-				description: "Signed in successfully!",
-				className: "bg-green-500 text-white",
+				title: "Welcome Back!",
+				description: "Successfully signed in to your account."
 			});
 
 			router.push("/dashboard");
@@ -90,9 +95,9 @@ export default function SignInPage() {
 			const errorMessage = "An unexpected error occurred. Please try again later.";
 			setError(errorMessage);
 			toast({
-				title: "Error",
-				description: errorMessage,
 				variant: "destructive",
+				title: "System Error",
+				description: errorMessage
 			});
 		} finally {
 			setLoading(false);
@@ -102,13 +107,32 @@ export default function SignInPage() {
 	const handleSocialLogin = async (provider: "github" | "google") => {
 		try {
 			setSocialLoading(provider);
-			await signIn(provider, { callbackUrl: "/dashboard" });
-		} catch (err) {
-			const errorMessage = `Unable to sign in with ${provider}. Please try again.`;
 			toast({
-				title: "Error",
-				description: errorMessage,
+				title: "Connecting...",
+				description: `Signing in with ${provider === 'google' ? 'Google' : 'GitHub'}...`
+			});
+			
+			const result = await signIn(provider, { 
+				callbackUrl: "/dashboard",
+			});
+
+			if (result?.ok) {
+				// Send welcome email
+				const response = await fetch("/api/auth/welcome", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ provider }),
+				});
+
+				if (!response.ok) {
+					console.error("Failed to send welcome email");
+				}
+			}
+		} catch (err) {
+			toast({
 				variant: "destructive",
+				title: "Connection Failed",
+				description: `Unable to sign in with ${provider}. Please try again.`
 			});
 		} finally {
 			setSocialLoading(null);
@@ -129,10 +153,10 @@ export default function SignInPage() {
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.3 }}
 					>
-						<h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
+						<h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 font-heading tracking-tight">
 							Welcome Back
 						</h1>
-						<p className="mt-3 text-gray-600">
+						<p className="mt-3 text-gray-600 font-sans">
 							Sign in to your account to continue your journey
 						</p>
 					</motion.div>
@@ -164,7 +188,7 @@ export default function SignInPage() {
 								<span className="w-full border-t border-gray-200" />
 							</div>
 							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-white px-4 text-gray-500">
+								<span className="bg-white px-4 text-gray-500 font-sans">
 									Or continue with email
 								</span>
 							</div>
@@ -172,7 +196,7 @@ export default function SignInPage() {
 
 						<form onSubmit={handleSubmit} className="space-y-4">
 							<div className="space-y-2">
-								<Label htmlFor="email" className="text-sm font-medium text-gray-700">
+								<Label htmlFor="email" className="text-sm font-medium text-gray-700 font-sans">
 									Email
 								</Label>
 								<Input
@@ -181,13 +205,13 @@ export default function SignInPage() {
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
 									placeholder="Enter your email"
-									className="h-11 bg-white/60"
+									className="h-11 bg-white/60 font-sans"
 									disabled={loading}
 								/>
 							</div>
 
 							<div className="space-y-2">
-								<Label htmlFor="password" className="text-sm font-medium text-gray-700">
+								<Label htmlFor="password" className="text-sm font-medium text-gray-700 font-sans">
 									Password
 								</Label>
 								<PasswordInput
@@ -195,7 +219,7 @@ export default function SignInPage() {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="Enter your password"
-									className="h-11 bg-white/60"
+									className="h-11 bg-white/60 font-sans"
 									disabled={loading}
 								/>
 							</div>
@@ -204,7 +228,7 @@ export default function SignInPage() {
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="rounded-lg bg-red-50 p-4 text-sm text-red-600"
+									className="rounded-lg bg-red-50 p-4 text-sm text-red-600 font-sans"
 								>
 									{error}
 								</motion.div>
@@ -212,7 +236,7 @@ export default function SignInPage() {
 
 							<Button
 								type="submit"
-								className="w-full h-11 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white font-medium shadow-lg shadow-indigo-500/20 transition-all duration-300"
+								className="w-full h-11 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white font-medium shadow-lg shadow-indigo-500/20 transition-all duration-300 font-sans"
 								disabled={loading}
 							>
 								{loading ? (
@@ -232,7 +256,7 @@ export default function SignInPage() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.2 }}
-					className="mt-6 text-center text-sm text-gray-600"
+					className="mt-6 text-center text-sm text-gray-600 font-sans"
 				>
 					Don&apos;t have an account?{" "}
 					<Link

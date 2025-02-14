@@ -1,14 +1,20 @@
-import "~/styles/globals.css";
-
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import { cookies } from "next/headers";
-import { type PropsWithChildren } from "react";
 import { Providers } from "./providers";
-import { ClientLayout } from "./client-layout";
+import "../styles/globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata = {
@@ -17,14 +23,22 @@ export const metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-export default function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = cookies();
-  
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans ${inter.variable}`} suppressHydrationWarning>
+      <head />
+      <body 
+        className={`${inter.variable} ${poppins.variable} font-sans min-h-screen bg-background text-foreground antialiased selection:bg-blue-500/10 dark:selection:bg-blue-500/20`}
+        suppressHydrationWarning
+      >
         <Providers cookies={cookieStore.toString()}>
-          <ClientLayout>{children}</ClientLayout>
+          <div className="relative flex min-h-screen flex-col">
+            <div className="fixed right-4 top-4 z-50">
+            </div>
+            <main className="flex-1">{children}</main>
+          </div>
         </Providers>
       </body>
     </html>
