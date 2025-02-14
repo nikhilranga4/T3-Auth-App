@@ -69,36 +69,37 @@
     font-family: var(--font-heading);
     font-weight: 600;
     letter-spacing: -0.025em;
+    line-height: 1.2;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl;
+    @apply text-4xl md:text-5xl lg:text-6xl;
     font-weight: 700;
   }
 
   h2 {
-    @apply text-3xl md:text-4xl;
+    @apply text-3xl md:text-4xl lg:text-5xl;
     font-weight: 700;
   }
 
   h3 {
-    @apply text-2xl md:text-3xl;
+    @apply text-2xl md:text-3xl lg:text-4xl;
     font-weight: 600;
   }
 
   h4 {
-    @apply text-xl md:text-2xl;
+    @apply text-xl md:text-2xl lg:text-3xl;
     font-weight: 600;
   }
 
   h5 {
     @apply text-lg md:text-xl;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   h6 {
     @apply text-base md:text-lg;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   p {
@@ -107,7 +108,15 @@
   }
 
   /* Form elements */
-  input, textarea, select, button {
+  input, 
+  textarea, 
+  select, 
+  button {
+    font-family: var(--font-sans) !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
     font-family: var(--font-sans);
   }
 
@@ -117,13 +126,51 @@
   }
 
   /* Labels and small text */
-  label, small {
-    font-family: var(--font-sans);
-    @apply text-sm font-medium;
+  label, 
+  small {
+    font-family: var(--font-sans) !important;
+    font-size: 0.875rem;
+    @apply font-medium tracking-tight;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+  }
+
+  /* Form label specific styles */
+  .form-label {
+    font-family: var(--font-sans) !important;
+    font-size: 0.875rem;
+    @apply font-medium tracking-tight text-gray-700 dark:text-gray-300;
+  }
+
+  /* Input label styles */
+  .input-label {
+    font-family: var(--font-sans) !important;
+    font-size: 0.875rem;
+    @apply font-medium tracking-tight mb-1.5;
+  }
+
+  /* Required label styles */
+  .required-label::after {
+    content: "*";
+    @apply text-red-500 ml-1;
+  }
+
+  /* Optional label styles */
+  .optional-label::after {
+    content: "(optional)";
+    @apply text-gray-500 dark:text-gray-400 text-xs ml-1 font-normal;
+  }
+
+  /* Disabled label styles */
+  .disabled-label {
+    @apply opacity-50 cursor-not-allowed;
   }
 
   /* Code blocks */
-  pre, code {
+  pre, 
+  code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
@@ -134,8 +181,9 @@
 }
 
 /* Component specific styles */
-.btn, .button {
-  font-family: var(--font-sans);
+.btn, 
+.button {
+  font-family: var(--font-sans) !important;
   font-weight: 500;
 }
 
@@ -158,25 +206,58 @@
   font-family: var(--font-sans);
 }
 
+/* Form components */
+.form-input,
+.form-select,
+.form-textarea {
+  font-family: var(--font-sans) !important;
+  @apply text-base;
+}
+
+/* Social login buttons */
+.social-login-button {
+  font-family: var(--font-sans) !important;
+  @apply font-medium;
+}
+
+/* Auth forms */
+.auth-title {
+  font-family: var(--font-heading);
+  @apply font-bold tracking-tight;
+}
+
+.auth-subtitle {
+  font-family: var(--font-sans);
+  @apply text-gray-600;
+}
+
+/* Dashboard elements */
+.dashboard-heading {
+  font-family: var(--font-heading);
+  @apply font-bold tracking-tight;
+}
+
+.dashboard-text {
+  font-family: var(--font-sans);
+}
+
 /* Email template styles */
 .email-container {
   font-family: var(--font-sans);
 }
 
-.email-container h1,
-.email-container h2,
-.email-container h3 {
+.email-heading {
   font-family: var(--font-heading);
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 
-.email-container p {
+.email-body {
   font-family: var(--font-sans);
   line-height: 1.6;
 }
 
-.email-container .button {
+.email-button {
   font-family: var(--font-heading);
   font-weight: 500;
 }
@@ -194,43 +275,49 @@
   @apply bg-gray-200 dark:bg-gray-800 rounded-full hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors;
 }
 
-/* Dark mode selection styles */
+/* Selection styles */
 ::selection {
-  @apply bg-blue-500/20 dark:bg-blue-500/30;
+  @apply bg-blue-500/20;
 }
 
-/* Dark mode focus styles */
+.dark ::selection {
+  @apply bg-blue-500/30;
+}
+
+/* Focus styles */
 .dark *:focus-visible {
   @apply ring-offset-gray-950;
 }
 
-/* Animations */
-@keyframes enter {
-  from {
-    opacity: var(--tw-enter-opacity, 1);
-    transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), var(--tw-enter-scale, 1)) rotate(var(--tw-enter-rotate, 0));
-  }
-}
-
-@keyframes exit {
-  to {
-    opacity: var(--tw-exit-opacity, 1);
-    transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
-  }
-}
-
+/* Animation utilities */
 .animate-in {
   animation: enter 150ms ease-out;
-  --tw-enter-opacity: 0;
-  --tw-enter-scale: 0.9;
-  --tw-enter-rotate: -4deg;
 }
 
 .animate-out {
   animation: exit 150ms ease-in;
-  --tw-exit-opacity: 0;
-  --tw-exit-scale: 0.95;
-  --tw-exit-rotate: 4deg;
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
 }
 
 /* Calendar styles */
