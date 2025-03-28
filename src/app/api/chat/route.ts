@@ -32,7 +32,11 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Chat API error:", error);
     return NextResponse.json(
-      { error: "Failed to process request" },
+      { 
+        error: "Failed to process request",
+        details: error instanceof Error ? error.message : "Unknown error",
+        stack: process.env.NODE_ENV === 'development' ? error instanceof Error ? error.stack : undefined : undefined
+      },
       { status: 500 }
     );
   }
