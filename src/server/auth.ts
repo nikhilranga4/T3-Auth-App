@@ -12,8 +12,13 @@ declare module "next-auth" {
 		user: {
 			id: string;
 			image?: string | null;
+			isVerified?: boolean;
 		} & DefaultSession["user"];
 	}
+}
+
+interface AuthUser extends User {
+	isVerified?: boolean;
 }
 
 interface Credentials {
@@ -27,10 +32,35 @@ export const { auth, handlers } = NextAuth({
 		GitHubProvider({
 			clientId: process.env.GITHUB_ID ?? "",
 			clientSecret: process.env.GITHUB_SECRET ?? "",
+			profile(profile) {
+				return {
+					id: profile.id.toString(),
+					name: profile.name || profile.login,
+					email: profile.email,
+					image: profile.avatar_url,
+					isVerified: true,
+				} as AuthUser;
+			},
 		}),
 		GoogleProvider({
 			clientId: process.env.GOOGLE_CLIENT_ID ?? "",
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+			authorization: {
+				params: {
+					prompt: "select_account",
+					access_type: "offline",
+					response_type: "code",
+				},
+			},
+			profile(profile) {
+				return {
+					id: profile.sub,
+					name: profile.name,
+					email: profile.email,
+					image: profile.picture,
+					isVerified: true,
+				} as AuthUser;
+			},
 		}),
 		CredentialsProvider({
 			name: "credentials",
@@ -38,7 +68,7 @@ export const { auth, handlers } = NextAuth({
 				email: { label: "Email", type: "text" },
 				password: { label: "Password", type: "password" }
 			},
-			async authorize(credentials): Promise<User | null> {
+			async authorize(credentials): Promise<AuthUser | null> {
 				if (!credentials?.email || !credentials?.password) {
 					throw new Error("Email and password required");
 				}
@@ -80,24 +110,83 @@ export const { auth, handlers } = NextAuth({
 					email: user.email,
 					name: user.name,
 					image: user.image,
+					isVerified: user.isVerified,
 				};
 			}
 		})
 	],
 	callbacks: {
-		async jwt({ token, user }) {
+		async signIn({ user, account, profile }) {
+			try {
+				if (account?.provider === "google" || account?.provider === "github") {
+					const existingUser = await db.user.findUnique({
+						where: { email: user.email! },
+						select: {
+							id: true,
+							image: true,
+							emailVerified: true,
+							isVerified: true,
+						},
+					});
+
+					if (existingUser) {
+						// Update user data
+						await db.user.update({
+							where: { id: existingUser.id },
+							data: {
+								emailVerified: existingUser.emailVerified ?? new Date(),
+								isVerified: true,
+								image: profile?.picture || profile?.avatar_url || user.image,
+							},
+						});
+					} else {
+						// Create new user
+						await db.user.create({
+							data: {
+								email: user.email!,
+								name: user.name,
+								image: profile?.picture || profile?.avatar_url,
+								emailVerified: new Date(),
+								isVerified: true,
+							},
+						});
+					}
+				}
+				return true;
+			} catch (error) {
+				console.error("Error in signIn callback:", error);
+				return false;
+			}
+		},
+		async jwt({ token, user, account }) {
 			if (user) {
 				token.id = user.id;
-				token.image = user.image;
+				token.email = user.email;
+				token.isVerified = (user as AuthUser).isVerified;
+				if (user.image?.includes('res.cloudinary.com')) {
+					token.picture = user.image;
+				}
+			}
+			if (account) {
+				token.accessToken = account.access_token;
 			}
 			return token;
 		},
 		async session({ session, token }) {
 			if (session?.user) {
 				session.user.id = token.id as string;
-				session.user.image = token.image as string | null;
+				session.user.email = token.email as string;
+				session.user.isVerified = token.isVerified as boolean;
+				if (token.picture) {
+					session.user.image = token.picture as string;
+				}
 			}
 			return session;
+		},
+		async redirect({ url, baseUrl }) {
+			if (url.startsWith("/")) return `${baseUrl}${url}`;
+			if (new URL(url).origin === baseUrl) return url;
+			return baseUrl;
 		},
 	},
 	pages: {
@@ -106,5 +195,7 @@ export const { auth, handlers } = NextAuth({
 	},
 	session: {
 		strategy: "jwt",
+		maxAge: 30 * 24 * 60 * 60, // 30 days
 	},
+	debug: process.env.NODE_ENV === "development",
 });

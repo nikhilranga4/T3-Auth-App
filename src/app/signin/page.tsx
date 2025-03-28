@@ -140,8 +140,8 @@ export default function SignInPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-indigo-50 via-gray-50 to-blue-50 flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
-			<div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:20px_20px]" />
+		<div className="min-h-screen bg-gradient-to-br from-indigo-50 via-gray-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
+			<div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] bg-[size:20px_20px]" />
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -153,10 +153,10 @@ export default function SignInPage() {
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.3 }}
 					>
-						<h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 font-heading tracking-tight">
+						<h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 dark:from-indigo-400 dark:to-blue-300 font-heading tracking-tight">
 							Welcome Back
 						</h1>
-						<p className="mt-3 text-gray-600 font-sans">
+						<p className="mt-3 text-gray-600 dark:text-gray-300 font-sans">
 							Sign in to your account to continue your journey
 						</p>
 					</motion.div>
@@ -166,9 +166,9 @@ export default function SignInPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}
-					className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-8 relative overflow-hidden"
+					className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg shadow-xl rounded-2xl p-8 relative overflow-hidden"
 				>
-					<div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-b from-indigo-50/50 dark:from-gray-700/50 to-transparent" />
 					<div className="relative space-y-6">
 						<div className="space-y-4">
 							<SocialLoginButton
@@ -185,10 +185,10 @@ export default function SignInPage() {
 
 						<div className="relative">
 							<div className="absolute inset-0 flex items-center">
-								<span className="w-full border-t border-gray-200" />
+								<span className="w-full border-t border-gray-200 dark:border-gray-700" />
 							</div>
 							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-white px-4 text-gray-500 font-sans">
+								<span className="bg-white dark:bg-gray-800 px-4 text-gray-500 dark:text-gray-400 font-sans">
 									Or continue with email
 								</span>
 							</div>
@@ -196,7 +196,7 @@ export default function SignInPage() {
 
 						<form onSubmit={handleSubmit} className="space-y-4">
 							<div className="space-y-2">
-								<Label htmlFor="email" className="text-sm font-medium text-gray-700 font-sans">
+								<Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200 font-sans">
 									Email
 								</Label>
 								<Input
@@ -205,13 +205,13 @@ export default function SignInPage() {
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
 									placeholder="Enter your email"
-									className="h-11 bg-white/60 font-sans"
+									className="h-11 bg-white/60 dark:bg-gray-900/60 font-sans dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500"
 									disabled={loading}
 								/>
 							</div>
 
 							<div className="space-y-2">
-								<Label htmlFor="password" className="text-sm font-medium text-gray-700 font-sans">
+								<Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-200 font-sans">
 									Password
 								</Label>
 								<PasswordInput
@@ -219,7 +219,7 @@ export default function SignInPage() {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="Enter your password"
-									className="h-11 bg-white/60 font-sans"
+									className="h-11 bg-white/60 dark:bg-gray-900/60 font-sans dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500"
 									disabled={loading}
 								/>
 							</div>
@@ -228,7 +228,7 @@ export default function SignInPage() {
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="rounded-lg bg-red-50 p-4 text-sm text-red-600 font-sans"
+									className="rounded-lg bg-red-50 dark:bg-red-900/30 p-4 text-sm text-red-600 dark:text-red-400 font-sans"
 								>
 									{error}
 								</motion.div>
@@ -236,7 +236,7 @@ export default function SignInPage() {
 
 							<Button
 								type="submit"
-								className="w-full h-11 bg-gradient-to-r from-indigo-600 to-blue-500 hover:from-indigo-500 hover:to-blue-400 text-white font-medium shadow-lg shadow-indigo-500/20 transition-all duration-300 font-sans"
+								className="w-full h-11 bg-gradient-to-r from-indigo-600 to-blue-500 dark:from-indigo-500 dark:to-blue-400 hover:from-indigo-500 hover:to-blue-400 dark:hover:from-indigo-400 dark:hover:to-blue-300 text-white font-medium shadow-lg shadow-indigo-500/20 dark:shadow-indigo-500/10 transition-all duration-300 font-sans"
 								disabled={loading}
 							>
 								{loading ? (
@@ -256,12 +256,12 @@ export default function SignInPage() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.2 }}
-					className="mt-6 text-center text-sm text-gray-600 font-sans"
+					className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400 font-sans"
 				>
 					Don&apos;t have an account?{" "}
 					<Link
 						href="/signup"
-						className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+						className="font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors"
 					>
 						Create Account
 					</Link>
@@ -270,8 +270,18 @@ export default function SignInPage() {
 
 			{/* Background decorative elements */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
-				<div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-indigo-50 to-transparent opacity-30 transform rotate-12" />
-				<div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-blue-50 to-transparent opacity-30 transform -rotate-12" />
+				<motion.div
+					initial={{ opacity: 0, rotate: 0 }}
+					animate={{ opacity: 0.3, rotate: 12 }}
+					transition={{ duration: 1.5, ease: "easeOut" }}
+					className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-indigo-50 dark:from-indigo-900/20 to-transparent"
+				/>
+				<motion.div
+					initial={{ opacity: 0, rotate: 0 }}
+					animate={{ opacity: 0.3, rotate: -12 }}
+					transition={{ duration: 1.5, ease: "easeOut" }}
+					className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-blue-50 dark:from-blue-900/20 to-transparent"
+				/>
 			</div>
 		</div>
 	);

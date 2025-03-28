@@ -2,17 +2,21 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { UserDetailsForm } from "~/components/UserDetailsForm";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "~/components/ui/use-toast";
-import { UserCircle, LogOut, Edit2, Settings, CheckCircle2, XCircle } from "lucide-react";
-import Image from "next/image";
+import { User, LogOut, Settings, Bell, Search, Bot, Sparkles, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import type { ReactNode } from "react";
-import { CustomToast } from "~/components/ui/custom-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 
 interface UserDetails {
   name?: string;
@@ -36,34 +40,34 @@ interface FormattedUserDetails {
 export default function DashboardPage() {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const router = useRouter();
   const { data: session, update: updateSession } = useSession();
 
   const fetchUserDetails = useCallback(async () => {
-    try {
-      const response = await fetch("/api/user/details");
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push("/signin");
-          return;
+      try {
+        const response = await fetch("/api/user/details");
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push("/signin");
+            return;
+          }
+          throw new Error("Failed to fetch user details");
         }
-        throw new Error("Failed to fetch user details");
-      }
       const data = (await response.json()) as UserDetails;
       setUserDetails({
         ...data,
         fullName: data.name || data.fullName,
       });
-    } catch (error) {
-      toast({
+      } catch (error) {
+        toast({
         variant: "destructive",
-        title: "Error",
+          title: "Error",
         description: "Failed to load user details"
-      });
-    } finally {
-      setLoading(false);
-    }
+        });
+      } finally {
+        setLoading(false);
+      }
   }, [router]);
 
   useEffect(() => {
@@ -103,7 +107,6 @@ export default function DashboardPage() {
         fullName: updatedData.fullName,
         dateOfBirth: updatedData.dateOfBirth?.toISOString(),
       });
-      setIsEditing(false);
 
       if (updatedData.image !== session?.user?.image) {
         await updateSession({
@@ -119,6 +122,9 @@ export default function DashboardPage() {
         title: "Profile updated",
         description: "Your profile has been updated successfully"
       });
+
+      // Close the form after successful update
+      setTimeout(() => setShowForm(false), 1000);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -130,7 +136,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -145,299 +151,278 @@ export default function DashboardPage() {
 
   const displayImage = userDetails?.image ?? session?.user?.image;
   const displayName = userDetails?.fullName || userDetails?.name || session?.user?.name || "";
-  const hasProfileData = displayName || userDetails?.gender || userDetails?.dateOfBirth;
+  const userName = userDetails?.fullName || session?.user?.name || "there";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-gray-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex items-center space-x-4"
+            >
+              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                Dashboard
+              </h1>
+            </motion.div>
+
+            <div className="flex items-center space-x-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative"
+              >
+                <Button variant="ghost" size="icon" className="relative hover:bg-blue-50 dark:hover:bg-gray-800">
+                  <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  <span className="absolute top-0 right-0 h-2 w-2 bg-blue-600 rounded-full ring-2 ring-white dark:ring-gray-900" />
+                </Button>
+              </motion.div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-blue-50 dark:hover:bg-gray-800">
+                    <Avatar className="h-10 w-10 ring-2 ring-offset-2 ring-blue-500/20 dark:ring-blue-400/20">
+                      <AvatarImage src={displayImage || ""} alt={userName} />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+                        {userName.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+          </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{userName}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session?.user?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="bg-gray-200 dark:bg-gray-700" />
+                  <DropdownMenuItem 
+                    onClick={() => setShowForm(true)} 
+                    className="cursor-pointer text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 focus:bg-blue-50 dark:focus:bg-gray-700"
+                  >
+                    <User className="mr-2 h-4 w-4 text-gray-600 dark:text-gray-400" />
+                    <span>Profile Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={handleSignOut} 
+                    className="cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 focus:bg-red-50 dark:focus:bg-red-900/10"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
         >
-          <div className="flex items-center space-x-4">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 dark:text-white">
+            Welcome
+            <span className="mx-2 bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400">
+              {userName}
+            </span>
+            <span className="inline-block animate-wave">👋</span>
+          </h1>
+          <div className="space-y-8">
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-lg sm:text-xl font-medium text-gray-600 dark:text-gray-300"
+            >
+              Manage your profile and explore your dashboard
+            </motion.h2>
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="relative"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="flex justify-center"
             >
-              <div className="w-12 sm:w-16 h-12 sm:h-16 rounded-full overflow-hidden bg-gray-100 border-2 border-white shadow-lg">
-                {displayImage ? (
-                  <Image
-                    src={displayImage}
-                    alt="Profile"
-                    width={64}
-                    height={64}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                    <UserCircle className="h-6 sm:h-8 w-6 sm:w-8 text-primary" />
-                  </div>
-                )}
-              </div>
+              <Button
+                onClick={() => router.push("/chatbot")}
+                className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 rounded-xl"
+              >
+                <span className="flex items-center">
+                  <Bot className="mr-2 h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+                  <span className="font-medium">Chat with AI Assistant</span>
+                  <ArrowRight className="ml-2 h-5 w-5 transition-all duration-300 group-hover:translate-x-1" />
+                </span>
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/20 to-indigo-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </Button>
             </motion.div>
-            <div>
-              <motion.h1
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-xl sm:text-2xl font-bold text-gray-900"
-              >
-                {displayName || "Welcome"}
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-sm text-muted-foreground"
-              >
-                Manage your profile and preferences
-              </motion.p>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Button
-              variant="outline"
-              onClick={handleSignOut}
-              className="flex items-center space-x-2 hover:bg-destructive/10 hover:text-destructive transition-colors text-sm sm:text-base px-3 sm:px-4"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>Sign Out</span>
-            </Button>
           </div>
         </motion.div>
 
         <AnimatePresence mode="wait">
-          <motion.div
-            key={isEditing ? "edit" : "view"}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="w-full"
-          >
-            <Card className="border-0 shadow-xl overflow-hidden">
-              <CardHeader className="border-b bg-card px-4 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg sm:text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
-                    {isEditing ? "Edit Profile" : "Profile Details"}
-                  </CardTitle>
-                  {!isEditing && (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="ghost"
-                      className="flex items-center space-x-2 hover:bg-primary/10 hover:text-primary transition-colors text-sm sm:text-base"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                      <span>{hasProfileData ? "Edit Profile" : "Complete Profile"}</span>
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6">
-                {isEditing ? (
+          {showForm ? (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="max-w-2xl mx-auto"
+            >
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20" />
+                <div className="relative">
                   <UserDetailsForm
-                    initialData={{
-                      ...userDetails,
-                      fullName: displayName,
-                      dateOfBirth: userDetails?.dateOfBirth
-                        ? new Date(userDetails.dateOfBirth)
-                        : undefined,
-                    }}
+                    initialData={userDetails ? {
+                      fullName: userDetails.fullName || userDetails.name,
+                      fbLink: userDetails.fbLink || "",
+                      linkedinLink: userDetails.linkedinLink || "",
+                      gender: userDetails.gender || "",
+                      dateOfBirth: userDetails.dateOfBirth ? new Date(userDetails.dateOfBirth) : undefined,
+                      image: userDetails.image
+                    } : undefined}
                     onUpdate={handleUpdateDetails}
-                    onCancel={() => setIsEditing(false)}
+                    onCancel={() => setShowForm(false)}
                   />
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="space-y-6"
-                  >
-                    {!hasProfileData ? (
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-center py-8"
+                </div>
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="dashboard-content"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {/* Quick Actions Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="col-span-full lg:col-span-1"
+              >
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative">
+                    <h3 className="text-lg font-semibold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                      Quick Actions
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Button
+                        variant="outline"
+                        className="flex flex-col items-center justify-center space-y-2 h-24 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:border-blue-200 dark:hover:border-blue-400 transition-all duration-300"
+                        onClick={() => setShowForm(true)}
                       >
-                        <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-4 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300">
-                          {displayImage ? (
-                            <Image
-                              src={displayImage}
-                              alt="Profile"
-                              width={96}
-                              height={96}
-                              className="w-full h-full object-cover"
-                            />
+                        <Settings className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        <span>Edit Profile</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex flex-col items-center justify-center space-y-2 h-24 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-700 hover:border-blue-200 dark:hover:border-blue-400 transition-all duration-300"
+                      >
+                        <Search className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                        <span>Search</span>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Profile Overview Card */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="col-span-full lg:col-span-2"
+              >
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative">
+                    <h3 className="text-lg font-semibold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 flex items-center gap-2">
+                      <User className="h-5 w-5" />
+                      Profile Overview
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Full Name</p>
+                          <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {displayName || "Not set"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Email</p>
+                          <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {session?.user?.email}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Gender</p>
+                          <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {userDetails?.gender || "Not set"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Date of Birth</p>
+                          <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {userDetails?.dateOfBirth ? new Date(userDetails.dateOfBirth).toLocaleDateString() : "Not set"}
+                          </p>
+                        </div>
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">LinkedIn Profile</p>
+                          {userDetails?.linkedinLink ? (
+                          <a
+                            href={userDetails.linkedinLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                              className="text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors truncate block"
+                          >
+                            {userDetails.linkedinLink}
+                          </a>
                           ) : (
-                            <UserCircle className="h-10 sm:h-12 w-10 sm:w-12 text-muted-foreground/30" />
+                            <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              Not set
+                        </p>
+                          )}
+                      </div>
+                        <div className="group">
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Facebook Profile</p>
+                          {userDetails?.fbLink ? (
+                            <a 
+                              href={userDetails.fbLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-base font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors truncate block"
+                            >
+                              {userDetails.fbLink}
+                            </a>
+                          ) : (
+                            <p className="text-base font-medium text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                              Not set
+                            </p>
                           )}
                         </div>
-                        <p className="text-muted-foreground text-sm">
-                          Your profile is incomplete. Add your details to get started.
-                        </p>
-                        <Button
-                          onClick={() => setIsEditing(true)}
-                          className="mt-4 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
-                        >
-                          Complete Profile
-                        </Button>
-                      </motion.div>
-                    ) : (
-                      <div className="grid gap-6">
-                        <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100"
-                        >
-                          <div className="flex items-center justify-between mb-4 sm:mb-6">
-                            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Personal Information</h3>
-                            <Settings className="h-4 sm:h-5 w-4 sm:w-5 text-blue-500" />
-                          </div>
-                          
-                          <div className="space-y-4">
-                            <motion.div
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.1 }}
-                              className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
-                            >
-                              <div className="min-w-[120px]">
-                                <label className="text-sm font-medium text-gray-500">Full Name</label>
-                              </div>
-                              <p className="text-sm sm:text-base font-medium text-gray-900">{displayName}</p>
-                            </motion.div>
-
-                            {userDetails?.gender && (
-                              <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
-                              >
-                                <div className="min-w-[120px]">
-                                  <label className="text-sm font-medium text-gray-500">Gender</label>
-                                </div>
-                                <p className="text-sm sm:text-base font-medium text-gray-900 capitalize">{userDetails.gender}</p>
-                              </motion.div>
-                            )}
-
-                            {userDetails?.dateOfBirth && (
-                              <motion.div
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.3 }}
-                                className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
-                              >
-                                <div className="min-w-[120px]">
-                                  <label className="text-sm font-medium text-gray-500">Birthday</label>
-                                </div>
-                                <p className="text-sm sm:text-base font-medium text-gray-900">
-                                  {new Date(userDetails.dateOfBirth).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  })}
-                                </p>
-                              </motion.div>
-                            )}
-                          </div>
-                        </motion.div>
-
-                        {(userDetails?.fbLink || userDetails?.linkedinLink) && (
-                          <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 }}
-                            className="p-4 sm:p-6 rounded-xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100"
-                          >
-                            <div className="flex items-center justify-between mb-4 sm:mb-6">
-                              <h3 className="text-base sm:text-lg font-semibold text-gray-900">Social Profiles</h3>
-                              <div className="flex space-x-3">
-                                {userDetails.fbLink && (
-                                  <motion.a
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    href={userDetails.fbLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                                  >
-                                    <svg className="w-4 sm:w-5 h-4 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
-                                    </svg>
-                                  </motion.a>
-                                )}
-                                {userDetails.linkedinLink && (
-                                  <motion.a
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    href={userDetails.linkedinLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                                  >
-                                    <svg className="w-4 sm:w-5 h-4 sm:h-5" fill="currentColor" viewBox="0 0 24 24">
-                                      <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
-                                    </svg>
-                                  </motion.a>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-4">
-                              {userDetails.fbLink && (
-                                <motion.div
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.5 }}
-                                  className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
-                                >
-                                  <div className="min-w-[120px]">
-                                    <label className="text-sm font-medium text-gray-500">Facebook</label>
-                                  </div>
-                                  <a
-                                    href={userDetails.fbLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm sm:text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
-                                  >
-                                    {userDetails.fbLink}
-                                  </a>
-                                </motion.div>
-                              )}
-
-                              {userDetails.linkedinLink && (
-                                <motion.div
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: 0.6 }}
-                                  className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 rounded-lg hover:bg-white/50 transition-colors"
-                                >
-                                  <div className="min-w-[120px]">
-                                    <label className="text-sm font-medium text-gray-500">LinkedIn</label>
-                                  </div>
-                                  <a
-                                    href={userDetails.linkedinLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm sm:text-base text-blue-600 hover:text-blue-700 hover:underline transition-colors break-all"
-                                  >
-                                    {userDetails.linkedinLink}
-                                  </a>
-                                </motion.div>
-                              )}
-                            </div>
-                          </motion.div>
-                        )}
                       </div>
-                    )}
-                  </motion.div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
+                      </div>
+                  </div>
+              </div>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 } 

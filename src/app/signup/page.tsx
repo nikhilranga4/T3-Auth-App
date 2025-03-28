@@ -128,8 +128,8 @@ export default function SignUpPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-indigo-50 flex flex-col items-center justify-center px-4 relative overflow-hidden">
-			<div className="absolute inset-0 bg-grid-black/[0.02] bg-[size:40px_40px]" />
+		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center px-4 relative overflow-hidden">
+			<div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02] bg-[size:40px_40px]" />
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
@@ -141,10 +141,10 @@ export default function SignUpPage() {
 						animate={{ opacity: 1, scale: 1 }}
 						transition={{ duration: 0.3 }}
 					>
-						<h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 font-heading tracking-tight">
+						<h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-300 font-heading tracking-tight">
 							Create Account
 						</h1>
-						<p className="mt-2.5 text-sm text-gray-600 font-sans">
+						<p className="mt-2.5 text-sm text-gray-600 dark:text-gray-300 font-sans">
 							Join us today and get started with your personalized experience
 						</p>
 					</motion.div>
@@ -154,9 +154,9 @@ export default function SignUpPage() {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ delay: 0.1 }}
-					className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-7 relative overflow-hidden"
+					className="bg-white/80 dark:bg-gray-800/90 backdrop-blur-lg shadow-xl rounded-2xl p-7 relative overflow-hidden"
 				>
-					<div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent" />
+					<div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 dark:from-gray-700/50 to-transparent" />
 					<div className="relative space-y-5">
 						<div className="flex flex-col gap-3">
 							<SocialLoginButton
@@ -173,10 +173,10 @@ export default function SignUpPage() {
 
 						<div className="relative">
 							<div className="absolute inset-0 flex items-center">
-								<span className="w-full border-t border-gray-200" />
+								<span className="w-full border-t border-gray-200 dark:border-gray-700" />
 							</div>
 							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-white px-4 text-gray-500 font-sans">
+								<span className="bg-white dark:bg-gray-800 px-4 text-gray-500 dark:text-gray-400 font-sans">
 									Or use email
 								</span>
 							</div>
@@ -184,7 +184,7 @@ export default function SignUpPage() {
 
 						<form onSubmit={handleSubmit} className="space-y-4">
 							<div className="space-y-1.5">
-								<Label htmlFor="email" className="text-sm font-medium text-gray-700 font-sans">
+								<Label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-200 font-sans">
 									Email
 								</Label>
 								<Input
@@ -193,13 +193,13 @@ export default function SignUpPage() {
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
 									placeholder="Enter your email"
-									className="h-10 bg-white/60 font-sans"
+									className="h-10 bg-white/60 dark:bg-gray-900/60 font-sans dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500"
 									disabled={loading}
 								/>
 							</div>
 
 							<div className="space-y-1.5">
-								<Label htmlFor="password" className="text-sm font-medium text-gray-700 font-sans">
+								<Label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-200 font-sans">
 									Password
 								</Label>
 								<PasswordInput
@@ -207,13 +207,13 @@ export default function SignUpPage() {
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
 									placeholder="Create a password"
-									className="h-10 bg-white/60 font-sans"
+									className="h-10 bg-white/60 dark:bg-gray-900/60 font-sans dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500"
 									disabled={loading}
 								/>
 							</div>
 
 							<div className="space-y-1.5">
-								<Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 font-sans">
+								<Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700 dark:text-gray-200 font-sans">
 									Confirm Password
 								</Label>
 								<PasswordInput
@@ -221,7 +221,7 @@ export default function SignUpPage() {
 									value={confirmPassword}
 									onChange={(e) => setConfirmPassword(e.target.value)}
 									placeholder="Confirm your password"
-									className="h-10 bg-white/60 font-sans"
+									className="h-10 bg-white/60 dark:bg-gray-900/60 font-sans dark:text-gray-200 dark:border-gray-600 dark:placeholder-gray-500"
 									disabled={loading}
 								/>
 							</div>
@@ -230,7 +230,7 @@ export default function SignUpPage() {
 								<motion.div
 									initial={{ opacity: 0, y: -10 }}
 									animate={{ opacity: 1, y: 0 }}
-									className="rounded-lg bg-red-50 p-3 text-sm text-red-600 font-sans"
+									className="rounded-lg bg-red-50 dark:bg-red-900/30 p-3 text-sm text-red-600 dark:text-red-400 font-sans"
 								>
 									{error}
 								</motion.div>
@@ -238,7 +238,7 @@ export default function SignUpPage() {
 
 							<Button
 								type="submit"
-								className="w-full h-10 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white font-medium shadow-lg shadow-blue-500/20 transition-all duration-300 font-sans"
+								className="w-full h-10 bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-500 dark:to-blue-400 hover:from-blue-500 hover:to-blue-300 dark:hover:from-blue-400 dark:hover:to-blue-300 text-white font-medium shadow-lg shadow-blue-500/20 dark:shadow-blue-500/10 transition-all duration-300 font-sans"
 								disabled={loading}
 							>
 								{loading ? (
@@ -258,12 +258,12 @@ export default function SignUpPage() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					transition={{ delay: 0.2 }}
-					className="mt-5 text-center text-sm text-gray-600 font-sans"
+					className="mt-5 text-center text-sm text-gray-600 dark:text-gray-400 font-sans"
 				>
 					Already have an account?{" "}
 					<Link
 						href="/signin"
-						className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+						className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors"
 					>
 						Sign In
 					</Link>
@@ -272,8 +272,18 @@ export default function SignUpPage() {
 
 			{/* Background decorative elements */}
 			<div className="absolute inset-0 overflow-hidden pointer-events-none">
-				<div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-blue-50 to-transparent opacity-30 transform rotate-12" />
-				<div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-indigo-50 to-transparent opacity-30 transform -rotate-12" />
+				<motion.div
+					initial={{ opacity: 0, rotate: 0 }}
+					animate={{ opacity: 0.3, rotate: 12 }}
+					transition={{ duration: 1.5, ease: "easeOut" }}
+					className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-b from-blue-50 dark:from-blue-900/20 to-transparent"
+				/>
+				<motion.div
+					initial={{ opacity: 0, rotate: 0 }}
+					animate={{ opacity: 0.3, rotate: -12 }}
+					transition={{ duration: 1.5, ease: "easeOut" }}
+					className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-t from-indigo-50 dark:from-indigo-900/20 to-transparent"
+				/>
 			</div>
 		</div>
 	);

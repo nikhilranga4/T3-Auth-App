@@ -185,7 +185,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         className="flex justify-center"
       >
         <div className="relative group">
-          <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 group-hover:border-blue-400 transition-colors duration-300">
+          <div className="w-24 sm:w-32 h-24 sm:h-32 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 group-hover:border-blue-400 dark:group-hover:border-blue-400 transition-colors duration-300">
             {image ? (
               <Image
                 src={image}
@@ -212,7 +212,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               type="button"
               variant="outline"
               size="sm"
-              className="rounded-full p-1.5 sm:p-2 bg-white hover:bg-blue-50"
+              className="rounded-full p-1.5 sm:p-2 bg-white dark:bg-gray-700 hover:bg-blue-50 dark:hover:bg-gray-600 dark:text-gray-200"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingImage}
             >
@@ -227,7 +227,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
                 type="button"
                 variant="outline"
                 size="sm"
-                className="rounded-full p-1.5 sm:p-2 bg-white hover:bg-red-50 hover:text-red-500"
+                className="rounded-full p-1.5 sm:p-2 bg-white dark:bg-gray-700 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 dark:hover:text-red-400 dark:text-gray-200"
                 onClick={handleRemoveImage}
               >
                 <Trash2 className="h-3 sm:h-4 w-3 sm:w-4" />
@@ -253,7 +253,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="Enter your full name"
-              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
               required
             />
           </div>
@@ -263,14 +263,14 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               Gender
             </Label>
             <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400">
+              <SelectTrigger className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100">
                 <SelectValue placeholder="Select your gender" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-                <SelectItem value="prefer-not-to-say">Prefer not to say</SelectItem>
+              <SelectContent className="dark:bg-gray-800 dark:border-gray-700">
+                <SelectItem value="male" className="dark:text-gray-100 dark:focus:bg-gray-700">Male</SelectItem>
+                <SelectItem value="female" className="dark:text-gray-100 dark:focus:bg-gray-700">Female</SelectItem>
+                <SelectItem value="other" className="dark:text-gray-100 dark:focus:bg-gray-700">Other</SelectItem>
+                <SelectItem value="prefer-not-to-say" className="dark:text-gray-100 dark:focus:bg-gray-700">Prefer not to say</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -287,7 +287,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               onChange={(e) => setFbLink(e.target.value)}
               placeholder="https://facebook.com/your.profile"
               type="url"
-              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
 
@@ -301,7 +301,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               onChange={(e) => setLinkedinLink(e.target.value)}
               placeholder="https://linkedin.com/in/your.profile"
               type="url"
-              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400"
+              className="h-9 sm:h-10 transition-all duration-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
             />
           </div>
         </div>
@@ -315,8 +315,8 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
               <Button
                 variant="outline"
                 className={cn(
-                  "w-full h-9 sm:h-10 justify-start text-left font-normal transition-all duration-300 focus:ring-2 focus:ring-blue-400",
-                  !dateOfBirth && "text-muted-foreground"
+                  "w-full h-9 sm:h-10 justify-start text-left font-normal transition-all duration-300 focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-100 dark:hover:bg-gray-700",
+                  !dateOfBirth && "text-muted-foreground dark:text-gray-400"
                 )}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
@@ -327,11 +327,11 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 dark:bg-gray-800 dark:border-gray-700" align="start">
               <Calendar
                 selected={dateOfBirth}
                 onSelect={setDateOfBirth}
-                className="rounded-lg border shadow-lg"
+                className="rounded-lg border shadow-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
               />
             </PopoverContent>
           </Popover>
@@ -349,7 +349,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
             type="button"
             variant="outline"
             onClick={onCancel}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 hover:bg-red-50 hover:text-red-500 transition-colors duration-300"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 bg-white dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-100 transition-colors duration-300"
             disabled={loading}
           >
             <X className="h-4 w-4" />
@@ -358,7 +358,7 @@ export function UserDetailsForm({ initialData, onUpdate, onCancel }: UserDetails
         )}
         <Button
           type="submit"
-          className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white transition-all duration-300"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 h-9 sm:h-10 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white dark:from-blue-500 dark:to-blue-300 dark:hover:from-blue-400 dark:hover:to-blue-200 transition-all duration-300"
           disabled={loading || uploadingImage}
         >
           <Save className="h-4 w-4" />
