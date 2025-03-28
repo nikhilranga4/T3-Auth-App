@@ -128,12 +128,25 @@ export default function ChatbotPage() {
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
+        },
         body: JSON.stringify({ message: input }),
       });
 
-      if (!response.ok) throw new Error("Failed to get response");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to get response");
+      }
+
       const data = await response.json();
+
+      if (!data.response) {
+        throw new Error("Invalid response format");
+      }
 
       // Replace loading message with actual response
       setMessages(prev => prev.map(msg => 
@@ -148,15 +161,24 @@ export default function ChatbotPage() {
           : msg
       ));
     } catch (error) {
+      console.error("Chat error:", error);
+      // Replace loading message with error message
+      setMessages(prev => prev.map(msg => 
+        msg.id === loadingMessage.id 
+          ? {
+              id: msg.id,
+              role: "assistant",
+              content: "I apologize, but I encountered an error. Please try again.",
+              timestamp: new Date(),
+            }
+          : msg
+      ));
       toast({
         title: "Error",
-        description: "Failed to get response from AI",
+        description: error instanceof Error ? error.message : "Failed to get response",
         variant: "destructive",
       });
-      // Remove loading message on error
-      setMessages(prev => prev.filter(msg => msg.id !== loadingMessage.id));
     }
-    scrollToBottom();
   };
 
   return (
